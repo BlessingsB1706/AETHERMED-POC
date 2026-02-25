@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | AetherMed Ecosystem</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    colors: {
+                        medical: {
+                            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6',
+                            600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        
+        .dashboard-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Active Sidebar State */
+        .active-nav {
+            background-color: #eff6ff; 
+            color: #2563eb;
+            font-weight: 600;
+            position: relative;
+        }
+        .active-nav::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 10%; height: 80%; width: 4px;
+            background-color: #3b82f6;
+            border-top-right-radius: 4px; border-bottom-right-radius: 4px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+
+        /* Smooth View Transitions */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typing indicator for AI */
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-medical-500 selection:text-white flex h-screen overflow-hidden">
+
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col h-full">
+        <div class="flex items-center h-20 px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-medical-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-medical-500/30">
+                <i data-feather="activity" class="w-5 h-5"></i>
+            </div>
+            <span class="ml-3 text-xl font-bold tracking-tight text-slate-900">Aether<span class="text-medical-600">Med</span></span>
+            <button class="ml-auto lg:hidden text-slate-400 hover:text-slate-600" onclick="toggleSidebar()">
+                <i data-feather="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">My Portal</p>
+            
+            <a href="#" onclick="switchView('dashboard', this)" class="nav-link active-nav flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="grid" class="w-5 h-5 mr-3"></i> Overview
+            </a>
+            <a href="#" onclick="switchView('ai', this)" class="nav-link flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="message-square" class="w-5 h-5 mr-3"></i> Aether AI
+            </a>
+            
+            <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mt-6 mb-2">Education & Growth</p>
+            
+            <a href="#" onclick="switchView('learning', this)" class="nav-link flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="book-open" class="w-5 h-5 mr-3"></i> Learning Hub
+            </a>
+            <a href="#" onclick="switchView('career', this)" class="nav-link flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="target" class="w-5 h-5 mr-3"></i> Career Match
+            </a>
+            
+            <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mt-6 mb-2">Preferences</p>
+            <a href="#" class="nav-link flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="settings" class="w-5 h-5 mr-3"></i> Settings
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-100">
+            <div class="flex items-center p-2 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
+                <img src="http://static.photos/people/48x48/2" alt="User Avatar" class="w-10 h-10 rounded-full border border-slate-200 object-cover">
+                <div class="ml-3 flex-1 overflow-hidden">
+                    <p class="text-sm font-bold text-slate-900 truncate">Sarah Wilson</p>
+                    <p class="text-xs text-slate-500 truncate">Medical Student</p>
+                </div>
+                <a href="login.html" class="text-slate-400 hover:text-red-500 transition-colors" title="Logout">
+                    <i data-feather="log-out" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden lg:ml-64 relative z-0 transition-all duration-300">
+        
+        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 shadow-sm h-20 flex items-center justify-between px-6 lg:px-8">
+            <div class="flex items-center">
+                <button class="mr-4 lg:hidden p-2 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 focus:outline-none" onclick="toggleSidebar()">
+                    <i data-feather="menu" class="w-5 h-5"></i>
+                </button>
+                <div class="relative hidden sm:block">
+                    <i data-feather="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                    <input type="text" placeholder="Search modules, records..." class="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-medical-500 focus:bg-white transition-all w-64">
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button class="relative p-2 text-slate-400 hover:text-medical-600 rounded-full hover:bg-medical-50 transition-colors">
+                    <i data-feather="bell" class="w-5 h-5"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50">
+            
+            <section id="dashboard-view" class="view-section active">
+                
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900">Good morning, Sarah!</h1>
+                        <p class="text-sm text-slate-500 mt-1">Here is your daily overview across the AetherMed ecosystem.</p>
+                    </div>
+                    
+                    <div class="bg-slate-200 p-1 rounded-xl relative shadow-inner inline-grid grid-cols-2 w-full sm:w-auto max-w-sm shrink-0">
+                        <div id="toggleBg" class="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-lg shadow-sm transition-transform duration-300 ease-in-out"></div>
+                        <button onclick="toggleDashboardMode('health')" id="btnHealth" class="relative z-10 px-3 sm:px-6 py-2.5 text-sm font-semibold rounded-lg transition-colors text-medical-600 whitespace-nowrap text-center">Patient View</button>
+                        <button onclick="toggleDashboardMode('student')" id="btnStudent" class="relative z-10 px-3 sm:px-6 py-2.5 text-sm font-semibold rounded-lg transition-colors text-slate-500 whitespace-nowrap text-center">Student View</button>
+                    </div>
+                </div>
+
+                <div id="healthMetrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 transition-opacity duration-300">
+                    <div class="dashboard-card bg-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-rose-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-sm font-medium text-slate-500">Heart Rate</p>
+                            <div class="p-1.5 bg-rose-50 text-rose-500 rounded-lg"><i data-feather="heart" class="w-4 h-4"></i></div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900">72 <span class="text-sm font-normal text-slate-500">bpm</span></h3>
+                        <p class="text-xs text-emerald-500 font-medium mt-2 flex items-center"><i data-feather="trending-up" class="w-3 h-3 mr-1"></i> Normal</p>
+                    </div>
+                    <div class="dashboard-card bg-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-medical-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-sm font-medium text-slate-500">Blood Pressure</p>
+                            <div class="p-1.5 bg-medical-50 text-medical-500 rounded-lg"><i data-feather="activity" class="w-4 h-4"></i></div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900">118/75</h3>
+                        <p class="text-xs text-emerald-500 font-medium mt-2 flex items-center"><i data-feather="check" class="w-3 h-3 mr-1"></i> Optimal</p>
+                    </div>
+                    <div class="dashboard-card bg-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-emerald-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-sm font-medium text-slate-500">Blood Oxygen</p>
+                            <div class="p-1.5 bg-emerald-50 text-emerald-500 rounded-lg"><i data-feather="wind" class="w-4 h-4"></i></div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900">98 <span class="text-sm font-normal text-slate-500">%</span></h3>
+                        <p class="text-xs text-emerald-500 font-medium mt-2 flex items-center"><i data-feather="trending-up" class="w-3 h-3 mr-1"></i> +1% from yesterday</p>
+                    </div>
+                    <div class="dashboard-card bg-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-indigo-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-sm font-medium text-slate-500">Sleep Duration</p>
+                            <div class="p-1.5 bg-indigo-50 text-indigo-500 rounded-lg"><i data-feather="moon" class="w-4 h-4"></i></div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900">7h 12m</h3>
+                        <p class="text-xs text-amber-500 font-medium mt-2 flex items-center"><i data-feather="minus" class="w-3 h-3 mr-1"></i> Light sleep detected</p>
+                    </div>
+                </div>
+
+                <div id="studentMetrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 hidden opacity-0 transition-opacity duration-300">
+                    <div class="dashboard-card bg-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-medical-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-sm font-medium text-slate-500">Modules Completed</p>
+                            <div class="p-1.5 bg-medical-50 text-medical-500 rounded-lg"><i data-feather="book-open" class="w-4 h-4"></i></div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900">14 <span class="text-sm font-normal text-slate-500">/ 20</span></h3>
+                        <p class="text-xs text-emerald-500 font-medium mt-2 flex items-center"><i data-feather="trending-up" class="w-3 h-3 mr-1"></i> Top 10% of class</p>
+                    </div>
+                    <div class="dashboard-card bg-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-purple-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-sm font-medium text-slate-500">Avg Quiz Score</p>
+                            <div class="p-1.5 bg-purple-50 text-purple-500 rounded-lg"><i data-feather="check-circle" class="w-4 h-4"></i></div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900">92.4%</h3>
+                        <p class="text-xs text-emerald-500 font-medium mt-2 flex items-center"><i data-feather="trending-up" class="w-3 h-3 mr-1"></i> +4.2% this term</p>
+                    </div>
+                    <div class="dashboard-card bg-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-amber-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-sm font-medium text-slate-500">Simulations Run</p>
+                            <div class="p-1.5 bg-amber-50 text-amber-500 rounded-lg"><i data-feather="cpu" class="w-4 h-4"></i></div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900">45 <span class="text-sm font-normal text-slate-500">hrs</span></h3>
+                        <p class="text-xs text-slate-500 font-medium mt-2 flex items-center"><i data-feather="clock" class="w-3 h-3 mr-1"></i> 5 hrs this week</p>
+                    </div>
+                    <div class="dashboard-card bg-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-emerald-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-sm font-medium text-slate-500">Global Rank</p>
+                            <div class="p-1.5 bg-emerald-50 text-emerald-500 rounded-lg"><i data-feather="award" class="w-4 h-4"></i></div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900">#142</h3>
+                        <p class="text-xs text-emerald-500 font-medium mt-2 flex items-center"><i data-feather="arrow-up" class="w-3 h-3 mr-1"></i> Promoted to Elite Tier</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 id="chartTitle" class="text-lg font-bold text-slate-900">Health Trends (Last 7 Days)</h3>
+                            <select class="bg-slate-50 border border-slate-200 text-sm rounded-lg px-3 py-1.5 outline-none focus:border-medical-500 text-slate-600">
+                                <option>Weekly</option>
+                                <option>Monthly</option>
+                            </select>
+                        </div>
+                        <div class="h-64 relative w-full">
+                            <canvas id="mainChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-slate-900">Upcoming Schedule</h3>
+                            <button class="text-medical-600 hover:text-medical-800 text-sm font-medium">View All</button>
+                        </div>
+                        
+                        <div class="space-y-4 flex-1">
+                            <div class="p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-medical-50 hover:border-medical-100 transition-colors cursor-pointer group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold text-medical-600 bg-medical-100 px-2 py-1 rounded-md uppercase">Appointment</span>
+                                    <span class="text-xs text-slate-500 font-medium">Tomorrow, 10:00 AM</span>
+                                </div>
+                                <h4 class="font-bold text-slate-900 text-sm group-hover:text-medical-700 transition-colors">Cardiology Follow-up</h4>
+                                <div class="flex items-center mt-3">
+                                    <img src="http://static.photos/people/32x32/1" class="w-6 h-6 rounded-full border border-slate-200" alt="Dr. Chen">
+                                    <span class="text-xs text-slate-600 ml-2">Dr. Michael Chen</span>
+                                    <i data-feather="video" class="w-3 h-3 text-slate-400 ml-auto"></i>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-purple-50 hover:border-purple-100 transition-colors cursor-pointer group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded-md uppercase">Simulation</span>
+                                    <span class="text-xs text-slate-500 font-medium">Thursday, 2:00 PM</span>
+                                </div>
+                                <h4 class="font-bold text-slate-900 text-sm group-hover:text-purple-700 transition-colors">Virtual ECG Diagnostics Lab</h4>
+                                <div class="flex items-center mt-3 text-xs text-slate-600">
+                                    <i data-feather="clock" class="w-3.5 h-3.5 mr-1.5 text-slate-400"></i> Est. duration: 45 mins
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full mt-4 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors">
+                            <i data-feather="plus" class="w-4 h-4 inline mr-1 -mt-0.5"></i> Book / Schedule
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="ai-view" class="view-section h-full flex flex-col">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col flex-1 overflow-hidden h-[calc(100vh-120px)]">
+                    
+                    <div class="px-6 py-4 bg-medical-600 text-white flex items-center justify-between shadow-md z-10 shrink-0">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full border-2 border-white/20 overflow-hidden bg-white">
+                                <img src="aether_ai.png" alt="AI Avatar" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg leading-tight">Aether AI</h3>
+                                <div class="flex items-center text-xs text-medical-100 font-medium">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Analyzing Health Data
+                                </div>
+                            </div>
+                        </div>
+                        <button class="text-white/80 hover:text-white transition-colors p-2 bg-white/10 rounded-full hover:bg-white/20" title="Clear History">
+                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <div id="fullChatMessages" class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 chat-scroll">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden flex-shrink-0 mt-1">
+                                <img src="aether_ai.png" alt="AI" class="w-full h-full object-cover">
+                            </div>
+                            <div class="ml-3 bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-slate-700 max-w-[80%]">
+                                <p class="mb-2">Hello Sarah. I've reviewed your latest vitals. Your blood pressure has stabilized since last week, which is excellent.</p>
+                                <p>Regarding your studies, I noticed you have the <strong>"Virtual ECG Diagnostics Lab"</strong> scheduled for Thursday. Would you like to run a quick practice simulation now, or do you have a specific medical question?</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <div class="bg-medical-600 text-white px-4 py-3 rounded-2xl rounded-tr-none shadow-sm text-sm max-w-[80%] break-words">
+                                Can you explain what a T-wave inversion means on an ECG? I struggled with that in the last module.
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden flex-shrink-0 mt-1">
+                                <img src="aether_ai.png" alt="AI" class="w-full h-full object-cover">
+                            </div>
+                            <div class="ml-3 bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-slate-700 max-w-[80%] space-y-3">
+                                <p>Absolutely. In an ECG, the <strong>T-wave</strong> represents the repolarization (recovery) of the ventricles.</p>
+                                <p>A <em>T-wave inversion</em> (when the wave dips downward instead of pointing up) can be a sign of myocardial ischemia—meaning the heart muscle isn't getting enough oxygen-rich blood.</p>
+                                <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-center">
+                                    <i data-feather="image" class="text-blue-500 w-5 h-5 mr-2"></i>
+                                    <span class="text-xs font-semibold text-blue-700">Reference_ECG_Ischemia.png (Attached)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-white border-t border-slate-100 shrink-0">
+                        <form id="fullChatForm" onsubmit="handleFullChatSubmit(event)" class="relative flex items-center">
+                            <button type="button" class="absolute left-2 p-2 text-slate-400 hover:text-medical-600 transition-colors rounded-full hover:bg-slate-50">
+                                <i data-feather="paperclip" class="w-5 h-5"></i>
+                            </button>
+                            <input type="text" id="fullChatInput" placeholder="Type your question or attach a lab result..." class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-full pl-12 pr-14 py-4 focus:outline-none focus:border-medical-400 focus:ring-2 focus:ring-medical-100 transition-all shadow-inner">
+                            <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-medical-600 text-white rounded-full flex items-center justify-center hover:bg-medical-700 transition-all shadow-md hover:shadow-lg">
+                                <i data-feather="send" class="w-4 h-4 ml-0.5"></i>
+                            </button>
+                        </form>
+                        <div class="text-center mt-2">
+                            <span class="text-[10px] text-slate-400">Aether AI may produce inaccurate information. Consult a verified professional for diagnoses.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="learning-view" class="view-section">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Learning Hub</h2>
+                        <p class="text-sm text-slate-500">Pick up where you left off or start a new module.</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-4 py-2 bg-white border border-slate-200 text-sm font-semibold rounded-lg shadow-sm hover:bg-slate-50 hidden sm:block">All Courses</button>
+                        <button class="px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg shadow-sm">My Progress</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="dashboard-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex flex-col">
+                        <div class="h-40 bg-slate-200 relative overflow-hidden group cursor-pointer">
+                            <img src="http://static.photos/technology/600x400/1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="ECG">
+                            <div class="absolute inset-0 bg-slate-900/20 group-hover:bg-transparent transition-colors"></div>
+                            <span class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-medical-600 text-xs font-bold px-2.5 py-1 rounded-md">In Progress</span>
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col">
+                            <h3 class="font-bold text-slate-900 text-lg leading-tight mb-2">Basics of ECG Interpretation</h3>
+                            <p class="text-xs text-slate-500 mb-4 flex items-center"><i data-feather="user" class="w-3 h-3 mr-1"></i> Prof. Michael Chen</p>
+                            
+                            <div class="mt-auto">
+                                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                    <span>Completion</span>
+                                    <span>75%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2 mb-4">
+                                    <div class="bg-medical-500 h-2 rounded-full" style="width: 75%"></div>
+                                </div>
+                                <button class="w-full py-2.5 bg-medical-50 text-medical-700 font-semibold text-sm rounded-xl hover:bg-medical-100 transition-colors">Resume Module</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex flex-col">
+                        <div class="h-40 bg-slate-200 relative overflow-hidden group cursor-pointer">
+                            <img src="http://static.photos/technology/600x400/3" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Neural Nets">
+                            <div class="absolute inset-0 bg-slate-900/20 group-hover:bg-transparent transition-colors"></div>
+                            <span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm">New</span>
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col">
+                            <h3 class="font-bold text-slate-900 text-lg leading-tight mb-2">AI Neural Networks in Oncology</h3>
+                            <p class="text-xs text-slate-500 mb-4 flex items-center"><i data-feather="user" class="w-3 h-3 mr-1"></i> AetherMed Research Team</p>
+                            
+                            <div class="mt-auto">
+                                <div class="flex items-center text-xs text-slate-500 mb-4 space-x-3">
+                                    <span class="flex items-center"><i data-feather="clock" class="w-3 h-3 mr-1"></i> 4h 30m</span>
+                                    <span class="flex items-center"><i data-feather="video" class="w-3 h-3 mr-1"></i> 12 Lessons</span>
+                                </div>
+                                <button class="w-full py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold text-sm rounded-xl hover:border-medical-500 hover:text-medical-600 transition-colors">Start Course</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="career-view" class="view-section">
+                <div class="bg-gradient-to-r from-slate-900 to-medical-900 rounded-3xl p-6 sm:p-8 mb-8 text-white relative overflow-hidden shadow-lg">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold tracking-wider uppercase mb-3 inline-block">Smart Match AI</span>
+                            <h2 class="text-2xl sm:text-3xl font-bold mb-2">Your Career Matches</h2>
+                            <p class="text-medical-100 max-w-lg text-sm leading-relaxed">Based on your learning progress (Top 10% in Cardiology models), Aether AI has found 3 high-probability internship opportunities for you.</p>
+                        </div>
+                        <button class="shrink-0 px-6 py-3 bg-white text-medical-900 font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-md">
+                            Update Resume
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:border-medical-300 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 dashboard-card group">
+                        <div class="flex items-center">
+                            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold text-xl shrink-0">
+                                BH
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="font-bold text-slate-900 text-lg group-hover:text-medical-600 transition-colors">Clinical Data Analyst (Intern)</h3>
+                                <p class="text-sm text-slate-500">Boston General Hospital • Remote/Hybrid</p>
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md font-medium">Data Science</span>
+                                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md font-medium">Cardiology</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:items-end gap-3">
+                            <div class="flex items-center bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-sm font-bold border border-emerald-100 self-start md:self-end">
+                                <i data-feather="target" class="w-4 h-4 mr-1.5"></i> 98% Match
+                            </div>
+                            <button class="px-6 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-medical-600 transition-colors w-full md:w-auto">Easy Apply</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:border-medical-300 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 dashboard-card group">
+                        <div class="flex items-center">
+                            <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-bold text-xl shrink-0">
+                                AL
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="font-bold text-slate-900 text-lg group-hover:text-medical-600 transition-colors">Lab Technician Apprentice</h3>
+                                <p class="text-sm text-slate-500">Apex Labs Inc. • Lagos, NG</p>
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md font-medium">Laboratory</span>
+                                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-md font-medium">Full-Time</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:items-end gap-3">
+                            <div class="flex items-center bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-sm font-bold border border-emerald-100 self-start md:self-end">
+                                <i data-feather="target" class="w-4 h-4 mr-1.5"></i> 85% Match
+                            </div>
+                            <button class="px-6 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-medical-600 transition-colors w-full md:w-auto">Easy Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // Init Feather
+        feather.replace();
+
+        // 1. Mobile Sidebar Toggle Logic
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        function toggleSidebar() {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        // 2. SPA View Switching Logic
+        function switchView(viewId, element) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            // Show target view
+            document.getElementById(viewId + '-view').classList.add('active');
+            
+            // Update sidebar active states
+            document.querySelectorAll('.nav-link').forEach(el => {
+                el.classList.remove('active-nav', 'text-medical-600');
+                el.classList.add('text-slate-600');
+            });
+            element.classList.add('active-nav', 'text-medical-600');
+            element.classList.remove('text-slate-600');
+
+            // Close mobile menu if open
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        // 3. Dashboard Role Toggle (Health vs Student)
+        const btnHealth = document.getElementById('btnHealth');
+        const btnStudent = document.getElementById('btnStudent');
+        const toggleBg = document.getElementById('toggleBg');
+        const healthMetrics = document.getElementById('healthMetrics');
+        const studentMetrics = document.getElementById('studentMetrics');
+        const chartTitle = document.getElementById('chartTitle');
+
+        function toggleDashboardMode(mode) {
+            if (mode === 'health') {
+                // UI Toggle Movement
+                toggleBg.style.transform = 'translateX(0)';
+                btnHealth.classList.replace('text-slate-500', 'text-medical-600');
+                btnStudent.classList.replace('text-medical-600', 'text-slate-500');
+                
+                // Content Switching
+                studentMetrics.classList.add('opacity-0');
+                setTimeout(() => {
+                    studentMetrics.classList.add('hidden');
+                    healthMetrics.classList.remove('hidden');
+                    setTimeout(() => healthMetrics.classList.remove('opacity-0'), 50);
+                }, 300);
+
+                // Chart Update
+                chartTitle.innerText = "Health Trends (Last 7 Days)";
+                updateChartData(healthData);
+
+            } else {
+                // UI Toggle Movement
+                toggleBg.style.transform = 'translateX(100%)';
+                btnStudent.classList.replace('text-slate-500', 'text-medical-600');
+                btnHealth.classList.replace('text-medical-600', 'text-slate-500');
+                
+                // Content Switching
+                healthMetrics.classList.add('opacity-0');
+                setTimeout(() => {
+                    healthMetrics.classList.add('hidden');
+                    studentMetrics.classList.remove('hidden');
+                    setTimeout(() => studentMetrics.classList.remove('opacity-0'), 50);
+                }, 300);
+
+                // Chart Update
+                chartTitle.innerText = "Study Hours & Simulation Activity";
+                updateChartData(studentData);
+            }
+        }
+
+        // 4. Chart.js Implementation
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        
+        const healthData = {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Activity Score',
+                data: [65, 78, 60, 92, 85, 95, 80],
+                borderColor: '#3b82f6', 
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 3, fill: true, tension: 0.4
+            }, {
+                label: 'Sleep Score',
+                data: [70, 72, 85, 65, 75, 90, 88],
+                borderColor: '#10b981', 
+                borderWidth: 3, borderDash: [5, 5], fill: false, tension: 0.4
+            }]
+        };
+
+        const studentData = {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Study Hours',
+                data: [2, 3.5, 1, 4, 5, 2.5, 6],
+                borderColor: '#8b5cf6', 
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                borderWidth: 3, fill: true, tension: 0.4
+            }]
+        };
+
+        let myChart = new Chart(ctx, {
+            type: 'line',
+            data: healthData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f1f5f9' }, ticks: { color: '#64748b' } },
+                    x: { grid: { display: false }, ticks: { color: '#64748b' } }
+                },
+                interaction: { intersect: false, mode: 'index' }
+            }
+        });
+
+        function updateChartData(newData) {
+            myChart.data = newData;
+            myChart.update();
+        }
+
+        // 5. Full Aether AI Chat Logic
+        const fullChatMessages = document.getElementById('fullChatMessages');
+        const fullChatInput = document.getElementById('fullChatInput');
+
+        function handleFullChatSubmit(e) {
+            e.preventDefault();
+            const text = fullChatInput.value.trim();
+            if(!text) return;
+
+            // Add User Message
+            const userHtml = `
+                <div class="flex justify-end animate-fade-in-up">
+                    <div class="bg-medical-600 text-white px-4 py-3 rounded-2xl rounded-tr-none shadow-sm text-sm max-w-[80%] break-words">
+                        ${text}
+                    </div>
+                </div>`;
+            fullChatMessages.insertAdjacentHTML('beforeend', userHtml);
+            fullChatInput.value = '';
+            scrollToBottomAI();
+
+            // Typing Indicator
+            const typingId = 'typing-' + Date.now();
+            const typingHtml = `
+                <div id="${typingId}" class="flex items-start">
+                    <div class="w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden flex-shrink-0 mt-1">
+                        <img src="aether_ai.png" alt="AI" class="w-full h-full object-cover">
+                    </div>
+                    <div class="ml-3 bg-white border border-slate-100 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm flex items-center space-x-1 mt-1">
+                        <div class="w-2 h-2 bg-slate-300 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-slate-300 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-slate-300 rounded-full typing-dot"></div>
+                    </div>
+                </div>`;
+            fullChatMessages.insertAdjacentHTML('beforeend', typingHtml);
+            scrollToBottomAI();
+
+            // Simulate AI Response
+            setTimeout(() => {
+                document.getElementById(typingId).remove();
+                const aiHtml = `
+                <div class="flex items-start animate-fade-in-up">
+                    <div class="w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden flex-shrink-0 mt-1">
+                        <img src="aether_ai.png" alt="AI" class="w-full h-full object-cover">
+                    </div>
+                    <div class="ml-3 bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-slate-700 max-w-[80%]">
+                        I've analyzed your query regarding "${text}". Based on current clinical guidelines and your profile parameters, this requires a deeper review. I have logged this into your study tracker for your next module.
+                    </div>
+                </div>`;
+                fullChatMessages.insertAdjacentHTML('beforeend', aiHtml);
+                scrollToBottomAI();
+            }, 1500);
+        }
+
+        function scrollToBottomAI() {
+            fullChatMessages.scrollTop = fullChatMessages.scrollHeight;
+        }
+    </script>
+</body>
+</html>

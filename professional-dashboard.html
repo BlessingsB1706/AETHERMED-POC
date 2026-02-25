@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Portal | AetherMed Ecosystem</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    colors: {
+                        medical: {
+                            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6',
+                            600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        
+        .dashboard-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Active Sidebar State */
+        .active-nav {
+            background-color: #eff6ff; 
+            color: #2563eb;
+            font-weight: 600;
+            position: relative;
+        }
+        .active-nav::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 10%; height: 80%; width: 4px;
+            background-color: #3b82f6;
+            border-top-right-radius: 4px; border-bottom-right-radius: 4px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+
+        /* Smooth View Transitions */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-medical-500 selection:text-white flex h-screen overflow-hidden">
+
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col h-full">
+        <div class="flex items-center h-20 px-6 border-b border-slate-100">
+            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md shadow-indigo-600/30">
+                <i data-feather="briefcase" class="w-5 h-5"></i>
+            </div>
+            <span class="ml-3 text-xl font-bold tracking-tight text-slate-900">Aether<span class="text-indigo-600">Pro</span></span>
+            <button class="ml-auto lg:hidden text-slate-400 hover:text-slate-600" onclick="toggleSidebar()">
+                <i data-feather="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Clinical</p>
+            
+            <a href="#" onclick="switchView('overview', this)" class="nav-link active-nav flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="grid" class="w-5 h-5 mr-3"></i> Overview
+            </a>
+            <a href="#" onclick="switchView('queue', this)" class="nav-link flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="cpu" class="w-5 h-5 mr-3"></i> AI Diagnostic Queue
+            </a>
+            <a href="#" onclick="switchView('patients', this)" class="nav-link flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="users" class="w-5 h-5 mr-3"></i> My Patients
+            </a>
+            
+            <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mt-6 mb-2">Innovation</p>
+            
+            <a href="#" onclick="switchView('research', this)" class="nav-link flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="database" class="w-5 h-5 mr-3"></i> Research Hub
+            </a>
+            <a href="#" onclick="switchView('students', this)" class="nav-link flex items-center px-4 py-3 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <i data-feather="book-open" class="w-5 h-5 mr-3"></i> Mentorship
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-100">
+            <div class="flex items-center p-2 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
+                <img src="http://static.photos/people/48x48/1" alt="Dr. Chen" class="w-10 h-10 rounded-full border border-slate-200 object-cover">
+                <div class="ml-3 flex-1 overflow-hidden">
+                    <p class="text-sm font-bold text-slate-900 truncate">Dr. M. Chen</p>
+                    <p class="text-xs text-emerald-500 font-semibold flex items-center truncate">
+                        <i data-feather="check-circle" class="w-3 h-3 mr-1"></i> Verified
+                    </p>
+                </div>
+                <a href="login.html" class="text-slate-400 hover:text-red-500 transition-colors" title="Logout">
+                    <i data-feather="log-out" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden lg:ml-64 relative z-0 transition-all duration-300">
+        
+        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 shadow-sm h-20 flex items-center justify-between px-6 lg:px-8">
+            <div class="flex items-center">
+                <button class="mr-4 lg:hidden p-2 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 focus:outline-none" onclick="toggleSidebar()">
+                    <i data-feather="menu" class="w-5 h-5"></i>
+                </button>
+                <div class="relative hidden sm:block">
+                    <i data-feather="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                    <input type="text" placeholder="Search patient ID, scans..." class="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all w-64">
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <span class="hidden md:flex items-center text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100">
+                    <i data-feather="cpu" class="w-3.5 h-3.5 mr-1.5"></i> Aether AI v2.4 Active
+                </span>
+                <button class="relative p-2 text-slate-400 hover:text-indigo-600 rounded-full hover:bg-indigo-50 transition-colors">
+                    <i data-feather="bell" class="w-5 h-5"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full ring-2 ring-white"></span>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50">
+            
+            <section id="overview-view" class="view-section active">
+                
+                <div class="bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-2xl p-6 mb-8 text-white shadow-lg flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3"></div>
+                    <div class="flex items-center z-10">
+                        <div class="w-14 h-14 bg-white text-emerald-600 rounded-full flex items-center justify-center shadow-md shrink-0">
+                            <i data-feather="shield" class="w-7 h-7"></i>
+                        </div>
+                        <div class="ml-5">
+                            <h2 class="text-xl font-bold flex items-center">Verified Professional <i data-feather="check-circle" class="w-5 h-5 ml-2 text-emerald-200"></i></h2>
+                            <p class="text-emerald-100 text-sm mt-1">Medical License confirmed • Board Certification approved • Identity verified</p>
+                        </div>
+                    </div>
+                    <button class="mt-4 md:mt-0 z-10 px-5 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl text-sm font-semibold transition-colors border border-white/30">
+                        View Public Profile
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-medium text-slate-500">Pending AI Reviews</p>
+                                <h3 class="text-3xl font-bold text-slate-900 mt-1">4</h3>
+                            </div>
+                            <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                                <i data-feather="alert-circle" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-4">Requires human-in-the-loop verification.</p>
+                    </div>
+                    
+                    <div class="dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-medium text-slate-500">Active Patients</p>
+                                <h3 class="text-3xl font-bold text-slate-900 mt-1">142</h3>
+                            </div>
+                            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                                <i data-feather="users" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-4">Across Cardiology & General Practice.</p>
+                    </div>
+
+                    <div class="dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-medium text-slate-500">Datasets Contributed</p>
+                                <h3 class="text-3xl font-bold text-slate-900 mt-1">12<span class="text-base text-slate-500 font-normal ml-1">GB</span></h3>
+                            </div>
+                            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                                <i data-feather="database" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-4">Improving AI accuracy globally.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <h3 class="text-lg font-bold text-slate-900 mb-6">Recent Clinical Activity</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-start relative">
+                            <div class="absolute left-4 top-10 bottom-[-24px] w-px bg-slate-200"></div>
+                            <div class="w-8 h-8 rounded-full bg-green-50 border border-green-200 flex items-center justify-center shrink-0 z-10">
+                                <i data-feather="check" class="w-4 h-4 text-green-600"></i>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-bold text-slate-900">AI Diagnostic Completed - #DRG-8921</p>
+                                <p class="text-sm text-slate-500 mt-0.5">MRI Brain Scan processed successfully with 98% confidence.</p>
+                                <p class="text-xs text-slate-400 mt-1">2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start relative">
+                            <div class="absolute left-4 top-10 bottom-[-24px] w-px bg-slate-200"></div>
+                            <div class="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 z-10">
+                                <i data-feather="alert-triangle" class="w-4 h-4 text-amber-600"></i>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-bold text-slate-900">Review Flagged - #DRG-8922</p>
+                                <p class="text-sm text-slate-500 mt-0.5">ECG Analysis yielded 74% confidence. Pending your manual review.</p>
+                                <p class="text-xs text-slate-400 mt-1">4 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start relative">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0 z-10">
+                                <i data-feather="message-circle" class="w-4 h-4 text-blue-600"></i>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-bold text-slate-900">Student Question Logged</p>
+                                <p class="text-sm text-slate-500 mt-0.5">Sarah Wilson requested clarification on a T-Wave inversion.</p>
+                                <p class="text-xs text-slate-400 mt-1">Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="queue-view" class="view-section">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">AI Diagnostic Queue</h2>
+                        <p class="text-sm text-slate-500 mt-1">Monitor incoming scans and manage human-in-the-loop failovers.</p>
+                    </div>
+                    <button class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition flex items-center">
+                        <i data-feather="upload-cloud" class="w-4 h-4 mr-2"></i> Upload New Scan
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center gap-2 overflow-x-auto">
+                        <span class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg shadow-sm cursor-pointer">All Cases</span>
+                        <span class="px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold rounded-lg cursor-pointer">Needs Review (4)</span>
+                        <span class="px-3 py-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold rounded-lg cursor-pointer">Completed (12)</span>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100">
+                                    <th class="px-6 py-4 font-medium">Case Details</th>
+                                    <th class="px-6 py-4 font-medium">Patient</th>
+                                    <th class="px-6 py-4 font-medium">AI Confidence Score</th>
+                                    <th class="px-6 py-4 font-medium">Status</th>
+                                    <th class="px-6 py-4 font-medium text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm divide-y divide-slate-50">
+                                
+                                <tr class="hover:bg-slate-50 transition-colors bg-amber-50/20">
+                                    <td class="px-6 py-4">
+                                        <div class="font-bold text-slate-900">#DRG-8922</div>
+                                        <div class="text-slate-500 text-xs mt-0.5">ECG Analysis (Cardiology)</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center text-slate-700 font-medium">
+                                            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] mr-2">JD</div>
+                                            J. Davis
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <span class="text-amber-600 font-bold mr-3 w-8">74%</span>
+                                            <div class="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                                <div class="bg-amber-500 h-full" style="width: 74%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                            <i data-feather="alert-circle" class="w-3 h-3 mr-1.5"></i> Flagged
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button onclick="openModal()" class="px-4 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold text-xs transition-colors border border-indigo-200">
+                                            Review Case
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="font-bold text-slate-900">#DRG-8921</div>
+                                        <div class="text-slate-500 text-xs mt-0.5">MRI Brain Scan (Neurology)</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center text-slate-700 font-medium">
+                                            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] mr-2">MR</div>
+                                            M. Roberts
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <span class="text-green-600 font-bold mr-3 w-8">98%</span>
+                                            <div class="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                                <div class="bg-green-500 h-full" style="width: 98%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-50 text-green-700 border border-green-200">
+                                            <i data-feather="check" class="w-3 h-3 mr-1.5"></i> Completed
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button class="text-slate-500 hover:text-indigo-600 font-semibold text-xs transition-colors">
+                                            View Report
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="font-bold text-slate-900">#DRG-8924</div>
+                                        <div class="text-slate-500 text-xs mt-0.5">Blood Panel (Oncology)</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center text-slate-700 font-medium">
+                                            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] mr-2">SL</div>
+                                            S. Lee
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-slate-400 text-xs font-medium italic flex items-center">
+                                            <i data-feather="loader" class="w-3 h-3 mr-1.5 animate-spin"></i> Calculating...
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                            Processing
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button class="text-slate-400 cursor-not-allowed font-semibold text-xs" disabled>
+                                            Pending
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="patients-view" class="view-section">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Patient Directory</h2>
+                        <p class="text-sm text-slate-500">Manage records, lab results, and AI summaries.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative">
+                        <div class="absolute top-4 right-4 text-slate-300 hover:text-medical-600 cursor-pointer"><i data-feather="more-horizontal"></i></div>
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg border border-blue-200">JD</div>
+                            <div class="ml-3">
+                                <h3 class="font-bold text-slate-900">John Davis</h3>
+                                <p class="text-xs text-slate-500">ID: PT-8472 • Age 45</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between text-sm border-b border-slate-50 pb-2">
+                                <span class="text-slate-500">Last Visit</span>
+                                <span class="text-slate-900 font-medium">Oct 12, 2025</span>
+                            </div>
+                            <div class="flex justify-between text-sm border-b border-slate-50 pb-2">
+                                <span class="text-slate-500">Condition</span>
+                                <span class="text-slate-900 font-medium">Hypertension</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-500">AI Risk Flag</span>
+                                <span class="text-emerald-600 font-bold">Low</span>
+                            </div>
+                        </div>
+                        <button class="w-full py-2 bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl hover:bg-slate-100 transition-colors border border-slate-200">View Medical Record</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="research-view" class="view-section">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Research Innovation Hub</h2>
+                    <p class="text-sm text-slate-500">Contribute anonymized datasets to improve the AetherMed neural network.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col h-full">
+                        <h3 class="font-bold text-slate-900 mb-4">Upload Dataset</h3>
+                        <div class="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 flex flex-col items-center justify-center p-8 text-center flex-1 hover:bg-indigo-50 hover:border-indigo-300 transition-colors cursor-pointer group">
+                            <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                <i data-feather="upload" class="text-indigo-500"></i>
+                            </div>
+                            <p class="text-sm font-bold text-slate-700">Drag & drop files</p>
+                            <p class="text-xs text-slate-500 mt-1">CSV, DICOM, or ZIP up to 5GB</p>
+                            <p class="text-[10px] text-emerald-600 font-bold mt-4 uppercase tracking-wide bg-emerald-50 px-2 py-1 rounded">Auto-HIPAA Masking Active</p>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                        <h3 class="font-bold text-slate-900 mb-4">My Contributions</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg mr-4"><i data-feather="file-text"></i></div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 text-sm">Q3 Cardiology ECG Scans (Anonymized)</p>
+                                        <p class="text-xs text-slate-500">1.2 GB • Uploaded Oct 10</p>
+                                    </div>
+                                </div>
+                                <span class="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-md">Published</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg mr-4"><i data-feather="database"></i></div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 text-sm">Neurology MRI Batch - Study 42</p>
+                                        <p class="text-xs text-slate-500">3.4 GB • Uploaded Yesterday</p>
+                                    </div>
+                                </div>
+                                <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-md">In Review</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="students-view" class="view-section">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Mentorship & Students</h2>
+                    <p class="text-sm text-slate-500">Oversee medical students and review their diagnostic simulations.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="dashboard-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative">
+                        <div class="flex items-center mb-4">
+                            <img src="http://static.photos/people/48x48/2" alt="Student" class="w-12 h-12 rounded-full border border-slate-200 object-cover">
+                            <div class="ml-3">
+                                <h3 class="font-bold text-slate-900">Sarah Wilson</h3>
+                                <p class="text-xs text-slate-500">MedLab Student • Top 10%</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between text-sm border-b border-slate-50 pb-2">
+                                <span class="text-slate-500">Active Module</span>
+                                <span class="text-slate-900 font-medium">ECG Interpretation</span>
+                            </div>
+                            <div class="flex justify-between text-sm border-b border-slate-50 pb-2">
+                                <span class="text-slate-500">Simulations Run</span>
+                                <span class="text-slate-900 font-medium">45 Hours</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-500">Avg Quiz Score</span>
+                                <span class="text-purple-600 font-bold">92.4%</span>
+                            </div>
+                        </div>
+                        <button class="w-full py-2 bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl hover:bg-slate-100 transition-colors border border-slate-200">Review Progress</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="reportModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0 px-4 py-8">
+        
+        <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh] transform scale-95 transition-transform duration-300 relative">
+            
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-900 leading-tight">Diagnostic Review: #DRG-8922</h3>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">Patient: John Davis • Scan: ECG</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 bg-white p-1.5 rounded-lg border border-slate-200">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto chat-scroll flex-1">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-4">
+                            <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2 flex items-center">
+                                <i data-feather="cpu" class="w-3 h-3 mr-1"></i> AI Confidence: 74%
+                            </h4>
+                            <p class="text-sm text-amber-900 mb-2">Borderline indicators detected. Human verification required before finalizing report.</p>
+                            <ul class="text-xs text-amber-800 space-y-1 list-disc pl-4">
+                                <li>Slight T-wave inversion in leads V2-V3</li>
+                                <li>Irregular baseline noise detected</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Doctor's Override Note</label>
+                            <textarea class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" rows="4" placeholder="Enter clinical assessment here..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-900 rounded-xl p-2 relative overflow-hidden flex items-center justify-center min-h-[200px] md:min-h-full">
+                        <img src="http://static.photos/technology/600x400/1" alt="ECG Scan" class="w-full opacity-80 mix-blend-screen">
+                        <div class="absolute border-2 border-amber-400 rounded w-16 h-16 top-1/2 left-1/3 transform -translate-y-1/2 flex items-start justify-end p-1 shadow-[0_0_15px_rgba(251,191,36,0.4)]">
+                            <span class="bg-amber-400 text-slate-900 text-[8px] font-bold px-1 rounded shadow-sm">FLAG</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end space-x-3 rounded-b-3xl shrink-0">
+                <button onclick="closeModal()" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-xl hover:bg-slate-50 transition-colors">Cancel</button>
+                <button onclick="closeModal()" class="px-4 py-2 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 shadow-md transition-colors">Submit Final Verdict</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+
+        // Mobile Sidebar Logic
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        function toggleSidebar() {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        // SPA View Switching
+        function switchView(viewId, element) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId + '-view').classList.add('active');
+            
+            document.querySelectorAll('.nav-link').forEach(el => {
+                el.classList.remove('active-nav', 'text-indigo-600');
+                el.classList.add('text-slate-600');
+            });
+            element.classList.add('active-nav', 'text-indigo-600');
+            element.classList.remove('text-slate-600');
+
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('reportModal');
+        const modalInner = modal.querySelector('.max-w-3xl');
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalInner.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modalInner.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | AetherMed Ecosystem</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        medical: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        
+        .bg-gradient-premium {
+            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        .animate-float-slow {
+            animation: float 6s ease-in-out infinite;
+        }
+        .animate-float-fast {
+            animation: float 4s ease-in-out infinite reverse;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-premium relative overflow-x-hidden selection:bg-medical-500 selection:text-white">
+
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div class="absolute top-20 -left-20 w-96 h-96 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float-slow"></div>
+        <div class="absolute bottom-10 -right-20 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float-fast"></div>
+    </div>
+
+    <div class="glass-card rounded-3xl p-8 sm:p-10 w-full max-w-2xl z-10 border border-white/50 relative h-fit">
+        
+        <a href="index.html" class="absolute top-6 left-6 text-slate-400 hover:text-medical-600 transition-colors flex items-center text-sm font-medium">
+            <i data-feather="arrow-left" class="w-4 h-4 mr-1"></i> Home
+        </a>
+
+        <div class="text-center mb-8 mt-4">
+            <div class="w-14 h-14 bg-medical-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-medical-500/30 mx-auto mb-4 transform hover:scale-105 transition-transform">
+                <i data-feather="activity" class="w-7 h-7"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Create Account</h1>
+            <p class="text-sm text-slate-500 mt-2">Join the future of healthcare intelligence</p>
+        </div>
+
+        <form class="space-y-5" id="signupForm">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label for="firstName" class="block text-sm font-medium text-slate-700 mb-1.5 ml-1">First Name</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i data-feather="user" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                        <input type="text" id="firstName" required class="w-full pl-11 pr-4 py-2.5 bg-white/50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-medical-500 focus:border-medical-500 outline-none transition-all" placeholder="John">
+                    </div>
+                </div>
+                <div>
+                    <label for="lastName" class="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Last Name</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i data-feather="user" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                        <input type="text" id="lastName" required class="w-full pl-11 pr-4 py-2.5 bg-white/50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-medical-500 focus:border-medical-500 outline-none transition-all" placeholder="Doe">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Email Address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i data-feather="mail" class="w-4 h-4 text-slate-400"></i>
+                    </div>
+                    <input type="email" id="email" required class="w-full pl-11 pr-4 py-2.5 bg-white/50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-medical-500 focus:border-medical-500 outline-none transition-all" placeholder="name@example.com">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i data-feather="lock" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                        <input type="password" id="password" required class="w-full pl-11 pr-10 py-2.5 bg-white/50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-medical-500 focus:border-medical-500 outline-none transition-all" placeholder="••••••••">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" id="togglePassword">
+                            <i data-feather="eye" class="w-4 h-4 text-slate-400 hover:text-medical-600 transition-colors" id="eyeIcon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="confirmPassword" class="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Confirm Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i data-feather="shield" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                        <input type="password" id="confirmPassword" required class="w-full pl-11 pr-10 py-2.5 bg-white/50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-medical-500 focus:border-medical-500 outline-none transition-all" placeholder="••••••••">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" id="toggleConfirmPassword">
+                            <i data-feather="eye" class="w-4 h-4 text-slate-400 hover:text-medical-600 transition-colors" id="confirmEyeIcon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <p class="block text-sm font-medium text-slate-700 mb-3 ml-1">I am registering as a:</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="relative">
+                        <input type="radio" name="role" id="patient" class="peer hidden" checked>
+                        <label for="patient" class="block border border-slate-200 bg-white/50 rounded-xl p-3 text-center cursor-pointer hover:bg-slate-50 transition-all peer-checked:border-medical-500 peer-checked:bg-medical-50 peer-checked:text-medical-700 shadow-sm text-slate-500">
+                            <i data-feather="user" class="mx-auto w-5 h-5 mb-1.5 peer-checked:text-medical-600"></i>
+                            <span class="text-xs font-semibold">Patient</span>
+                        </label>
+                    </div>
+                    <div class="relative">
+                        <input type="radio" name="role" id="student" class="peer hidden">
+                        <label for="student" class="block border border-slate-200 bg-white/50 rounded-xl p-3 text-center cursor-pointer hover:bg-slate-50 transition-all peer-checked:border-medical-500 peer-checked:bg-medical-50 peer-checked:text-medical-700 shadow-sm text-slate-500">
+                            <i data-feather="book-open" class="mx-auto w-5 h-5 mb-1.5 peer-checked:text-medical-600"></i>
+                            <span class="text-xs font-semibold">Student</span>
+                        </label>
+                    </div>
+                    <div class="relative">
+                        <input type="radio" name="role" id="professional" class="peer hidden">
+                        <label for="professional" class="block border border-slate-200 bg-white/50 rounded-xl p-3 text-center cursor-pointer hover:bg-slate-50 transition-all peer-checked:border-medical-500 peer-checked:bg-medical-50 peer-checked:text-medical-700 shadow-sm text-slate-500">
+                            <i data-feather="briefcase" class="mx-auto w-5 h-5 mb-1.5 peer-checked:text-medical-600"></i>
+                            <span class="text-xs font-semibold">Professional</span>
+                        </label>
+                    </div>
+                    <div class="relative">
+                        <input type="radio" name="role" id="institution" class="peer hidden">
+                        <label for="institution" class="block border border-slate-200 bg-white/50 rounded-xl p-3 text-center cursor-pointer hover:bg-slate-50 transition-all peer-checked:border-medical-500 peer-checked:bg-medical-50 peer-checked:text-medical-700 shadow-sm text-slate-500">
+                            <i data-feather="grid" class="mx-auto w-5 h-5 mb-1.5 peer-checked:text-medical-600"></i>
+                            <span class="text-xs font-semibold">Institution</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-start pt-2">
+                <div class="flex items-center h-5 mt-0.5">
+                    <input id="terms" type="checkbox" class="focus:ring-medical-500 h-4 w-4 text-medical-600 border-slate-300 rounded cursor-pointer" required>
+                </div>
+                <div class="ml-3 text-sm">
+                    <label for="terms" class="font-medium text-slate-600 cursor-pointer">I agree to the <a href="#" class="text-medical-600 hover:text-medical-800 transition-colors">Terms of Service</a> and <a href="#" class="text-medical-600 hover:text-medical-800 transition-colors">Privacy Policy</a>.</label>
+                </div>
+            </div>
+
+            <button type="submit" id="signupBtn" class="w-full py-3.5 px-4 bg-medical-600 hover:bg-medical-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-medical-600/30 flex items-center justify-center group relative overflow-hidden mt-4">
+                <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
+                <span id="btnText" class="relative flex items-center">
+                    Create Account <i data-feather="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                </span>
+            </button>
+        </form>
+
+        <div class="relative flex items-center justify-center mt-8 mb-6">
+            <div class="border-t border-slate-200 w-full"></div>
+            <span class="absolute bg-white px-3 text-slate-400 text-xs font-medium tracking-wide uppercase">or register with</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <button type="button" class="py-2.5 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium text-slate-700 shadow-sm">
+                <svg class="w-4 h-4 mr-2" viewBox="0 0 384 512" fill="currentColor">
+                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                </svg>
+                Apple
+            </button>
+            <button type="button" class="py-2.5 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium text-slate-700 shadow-sm">
+                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                Google
+            </button>
+        </div>
+
+        <div class="text-center mt-8 text-sm text-slate-600">
+            Already have an account? <a href="login.html" class="text-medical-600 hover:text-medical-800 font-semibold transition-colors">Login here</a>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+
+        // Show/Hide Primary Password
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            eyeIcon.setAttribute('data-feather', type === 'password' ? 'eye' : 'eye-off');
+            feather.replace();
+        });
+
+        // Show/Hide Confirm Password
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const confirmEyeIcon = document.getElementById('confirmEyeIcon');
+
+        toggleConfirmPassword.addEventListener('click', function () {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            confirmEyeIcon.setAttribute('data-feather', type === 'password' ? 'eye' : 'eye-off');
+            feather.replace();
+        });
+
+        // Form Submit Logic
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btnText = document.getElementById('btnText');
+            const btn = document.getElementById('signupBtn');
+            const p1 = passwordInput.value;
+            const p2 = confirmPasswordInput.value;
+
+            if (p1 !== p2) {
+                alert("Passwords do not match. Please try again.");
+                return;
+            }
+            
+            // Show loading state
+            const originalHTML = btnText.innerHTML;
+            btnText.innerHTML = '<i data-feather="loader" class="w-5 h-5 animate-spin"></i> <span class="ml-2">Creating Account...</span>';
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            feather.replace();
+
+            // Simulate network request delay (1.5 seconds) then redirect to login
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

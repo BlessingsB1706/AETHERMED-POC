@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | AetherMed Ecosystem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .dashboard-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        /* Refined active nav state to match your mobile screenshot */
+        .active-nav {
+            background-color: #f0f4f8; 
+            color: #1d4ed8;
+            font-weight: 500;
+            position: relative;
+        }
+        .active-nav::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 4px;
+            background-color: #3b82f6;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 flex flex-col justify-between h-screen">
+        <div>
+            <div class="flex items-center justify-between h-16 px-6 border-b border-gray-100">
+                <a href="admin-dashboard.html" class="flex items-center">
+                    <i data-feather="activity" class="text-blue-600 h-7 w-7"></i>
+                    <span class="ml-3 text-xl font-bold text-blue-700 tracking-tight">AetherMed</span>
+                </a>
+                <button id="closeSidebar" class="lg:hidden text-gray-500 hover:text-gray-800">
+                    <i data-feather="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <nav class="mt-6 px-4 space-y-1">
+                <a href="admin-dashboard.html" class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50 active-nav transition-colors">
+                    <i data-feather="grid" class="w-5 h-5 mr-3 text-current"></i>
+                    Dashboard
+                </a>
+                <a href="admin-users.html" class="nav-item flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                    <i data-feather="users" class="w-5 h-5 mr-3"></i>
+                    Users
+                </a>
+                <a href="admin-analytics.html" class="nav-item flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                    <i data-feather="bar-chart-2" class="w-5 h-5 mr-3"></i>
+                    Analytics
+                </a>
+                <a href="admin-diagnostics.html" class="nav-item flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                    <i data-feather="activity" class="w-5 h-5 mr-3"></i>
+                    Diagnostics
+                </a>
+                <a href="admin-content.html" class="nav-item flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                    <i data-feather="file-text" class="w-5 h-5 mr-3"></i>
+                    Content
+                </a>
+                <a href="admin-settings.html" class="nav-item flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                    <i data-feather="settings" class="w-5 h-5 mr-3"></i>
+                    Settings
+                </a>
+            </nav>
+        </div>
+        
+        <div class="p-4 border-t border-gray-100">
+            <div class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="flex items-center space-x-3">
+                    <img src="http://static.photos/people/48x48/5" alt="Admin Avatar" class="w-10 h-10 rounded-full border border-gray-200">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 truncate">System Admin</p>
+                        <p class="text-xs text-gray-500 truncate">sadmin@aethermed.com</p>
+                    </div>
+                </div>
+                <a href="login.html" class="text-gray-400 hover:text-red-500 transition-colors" title="Logout">
+                    <i data-feather="log-out" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="lg:ml-64 min-h-screen flex flex-col">
+        
+        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-gray-100 shadow-sm">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="openSidebar" class="mr-4 lg:hidden p-2 rounded-md bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200">
+                        <i data-feather="menu" class="w-5 h-5"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 leading-tight">Overview</h1>
+                        <p class="text-sm text-gray-500 hidden sm:block">AetherMed Ecosystem Command Center</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <button class="relative p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-50 transition-colors">
+                        <i data-feather="bell" class="w-5 h-5"></i>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 p-6 lg:p-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="dashboard-card bg-white rounded-2xl p-6 border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Total Users</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1">12,847</h3>
+                        </div>
+                        <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                            <i data-feather="users" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-500 flex items-center font-medium">
+                            <i data-feather="trending-up" class="w-4 h-4 mr-1"></i> +12.5%
+                        </span>
+                        <span class="text-gray-400 ml-2">from last month</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-card bg-white rounded-2xl p-6 border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">AI Diagnoses</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1">8,432</h3>
+                        </div>
+                        <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                            <i data-feather="activity" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-500 flex items-center font-medium">
+                            <i data-feather="trending-up" class="w-4 h-4 mr-1"></i> +8.3%
+                        </span>
+                        <span class="text-gray-400 ml-2">from last month</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-card bg-white rounded-2xl p-6 border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Learning Sessions</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1">24,156</h3>
+                        </div>
+                        <div class="p-3 bg-purple-50 text-purple-600 rounded-xl">
+                            <i data-feather="book-open" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-500 flex items-center font-medium">
+                            <i data-feather="trending-up" class="w-4 h-4 mr-1"></i> +15.2%
+                        </span>
+                        <span class="text-gray-400 ml-2">this week</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-card bg-white rounded-2xl p-6 border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">System Health</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1">99.8%</h3>
+                        </div>
+                        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                            <i data-feather="server" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-emerald-500 flex items-center font-medium">
+                            <i data-feather="check-circle" class="w-4 h-4 mr-1"></i> Operational
+                        </span>
+                        <span class="text-gray-400 ml-2">All systems go</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="dashboard-card bg-white rounded-2xl p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Platform Growth</h3>
+                        <select class="bg-gray-50 border border-gray-200 text-sm rounded-lg px-3 py-1.5 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option>This Year</option>
+                            <option>Last 6 Months</option>
+                        </select>
+                    </div>
+                    <div class="h-64 relative w-full">
+                        <canvas id="userGrowthChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card bg-white rounded-2xl p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">AI Model Accuracy</h3>
+                        <span class="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-full">v2.4.1 Active</span>
+                    </div>
+                    <div class="h-64 relative w-full">
+                        <canvas id="aiPerformanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 dashboard-card bg-white rounded-2xl p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Recent Ecosystem Activity</h3>
+                        <a href="admin-analytics.html" class="text-sm font-medium text-blue-600 hover:text-blue-800">View logs &rarr;</a>
+                    </div>
+                    <div class="space-y-5">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                                    <i data-feather="user-plus" class="w-5 h-5 text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">Dr. Michael Chen registered</p>
+                                <p class="text-sm text-gray-500 mt-0.5">Joined the Professional network. License verification pending.</p>
+                                <p class="text-xs text-gray-400 mt-1">10 mins ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100">
+                                    <i data-feather="cpu" class="w-5 h-5 text-indigo-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">Diagnostic batch completed</p>
+                                <p class="text-sm text-gray-500 mt-0.5">Analyzed 150 anon records in Cardiology module.</p>
+                                <p class="text-xs text-gray-400 mt-1">45 mins ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                                    <i data-feather="database" class="w-5 h-5 text-emerald-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">Automated backup successful</p>
+                                <p class="text-sm text-gray-500 mt-0.5">Main database and user media files secured to cold storage.</p>
+                                <p class="text-xs text-gray-400 mt-1">3 hours ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card bg-white rounded-2xl p-6 border border-gray-100 flex flex-col h-full">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+                    <div class="space-y-3 flex-1">
+                        <button class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl border border-transparent hover:border-gray-200 transition-all group">
+                            <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <i data-feather="user-plus" class="w-5 h-5"></i>
+                            </div>
+                            <span class="ml-4 font-medium text-gray-700">Invite New Admin</span>
+                        </button>
+                        <button class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl border border-transparent hover:border-gray-200 transition-all group">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <i data-feather="play-circle" class="w-5 h-5"></i>
+                            </div>
+                            <span class="ml-4 font-medium text-gray-700">Trigger AI Training</span>
+                        </button>
+                        <button class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl border border-transparent hover:border-gray-200 transition-all group">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                <i data-feather="download-cloud" class="w-5 h-5"></i>
+                            </div>
+                            <span class="ml-4 font-medium text-gray-700">Export System Log</span>
+                        </button>
+                        <button class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl border border-transparent hover:border-gray-200 transition-all group">
+                            <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center group-hover:bg-gray-800 group-hover:text-white transition-colors">
+                                <i data-feather="settings" class="w-5 h-5"></i>
+                            </div>
+                            <span class="ml-4 font-medium text-gray-700">Ecosystem Settings</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Initialize Icons
+        feather.replace();
+
+        // Mobile Sidebar Logic
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('openSidebar');
+        const closeBtn = document.getElementById('closeSidebar');
+
+        openBtn.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+        });
+
+        // Initialize Charts when DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // 1. User Growth Chart (Line)
+            const growthCtx = document.getElementById('userGrowthChart').getContext('2d');
+            new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [{
+                        label: 'Ecosystem Users',
+                        data: [8500, 9200, 9800, 10500, 11200, 11800, 12847],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#3b82f6',
+                        pointBorderWidth: 2,
+                        fill: true,
+                        tension: 0.4 // Smooth curves
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            beginAtZero: false, 
+                            grid: { borderDash: [4, 4], color: '#f3f4f6' },
+                            ticks: { color: '#6b7280' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#6b7280' }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
+
+            // 2. AI Performance Chart (Bar)
+            const aiCtx = document.getElementById('aiPerformanceChart').getContext('2d');
+            new Chart(aiCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Cardiology', 'Neurology', 'Oncology', 'Pediatrics', 'Dermatology'],
+                    datasets: [{
+                        label: 'Accuracy Rate (%)',
+                        data: [94.5, 89.2, 96.1, 86.8, 92.4],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.9)', // Blue
+                            'rgba(99, 102, 241, 0.9)', // Indigo
+                            'rgba(16, 185, 129, 0.9)', // Emerald
+                            'rgba(245, 158, 11, 0.9)', // Amber
+                            'rgba(239, 68, 68, 0.9)'   // Red
+                        ],
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 100,
+                            grid: { borderDash: [4, 4], color: '#f3f4f6' },
+                            ticks: { color: '#6b7280', callback: function(value) { return value + '%' } }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#6b7280', font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
