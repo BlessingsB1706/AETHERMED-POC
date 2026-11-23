@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
+/* Dark mode is class-based (html.dark), driven by the toggle in lib/theme.tsx. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --color-surface: #ffffff;
   --color-medical-50: #eff6ff;
   --color-medical-100: #dbeafe;
   --color-medical-200: #bfdbfe;
@@ -14,6 +18,61 @@
   --color-medical-900: #1e3a8a;
 }
 
+/*
+ * Dark theme by token remapping: components keep one set of classes
+ * (bg-surface, bg-slate-50, text-slate-900, bg-amber-50 ...) and the tokens flip here.
+ * slate-950 and white are NOT remapped, so use them for things that must stay dark / white in both themes.
+ */
+.dark {
+  --color-surface: #111a2e;
+  --color-slate-50: #0a1020;
+  --color-slate-100: #1a2438;
+  --color-slate-200: #26324a;
+  --color-slate-300: #3a4964;
+  --color-slate-400: #8392a9;
+  --color-slate-500: #9aa8bc;
+  --color-slate-600: #b6c2d3;
+  --color-slate-700: #cbd5e1;
+  --color-slate-800: #e2e8f0;
+  --color-slate-900: #f1f5f9;
+
+  --color-medical-50: #13233f;
+  --color-medical-100: #1a3157;
+  --color-medical-200: #23427a;
+  --color-medical-700: #93c5fd;
+  --color-medical-800: #bfdbfe;
+  --color-medical-900: #0f1f3d;
+
+  --color-amber-50: #2b2110;
+  --color-amber-100: #3d2e12;
+  --color-amber-200: #5c4514;
+  --color-amber-700: #fcd34d;
+  --color-amber-800: #fde68a;
+  --color-amber-900: #fef3c7;
+
+  --color-emerald-50: #0d2a22;
+  --color-emerald-100: #12392e;
+  --color-emerald-700: #6ee7b7;
+
+  --color-red-50: #2e1416;
+  --color-red-200: #5b1f24;
+  --color-red-700: #fca5a5;
+
+  --color-indigo-50: #1b1d45;
+  --color-indigo-100: #252a5e;
+  --color-indigo-700: #c7d2fe;
+
+  --color-purple-50: #26173f;
+  --color-purple-700: #d8b4fe;
+  --color-rose-50: #2d1420;
+  --color-rose-700: #fda4af;
+}
+
+body {
+  background-color: var(--color-slate-50);
+  color: var(--color-slate-800);
+}
+
 @keyframes typing {
   0%, 80%, 100% { transform: scale(0); }
   40% { transform: scale(1); }
@@ -22,6 +81,20 @@
 .typing-dot:nth-child(1) { animation-delay: -0.32s; }
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-delayed { animation: float 7s ease-in-out 1.5s infinite; }
+
+@keyframes ecg-draw {
+  from { stroke-dashoffset: 600; }
+  to { stroke-dashoffset: 0; }
+}
+.ecg-line { stroke-dasharray: 600; animation: ecg-draw 3s linear infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  .ecg-line { stroke-dasharray: none; }
 }

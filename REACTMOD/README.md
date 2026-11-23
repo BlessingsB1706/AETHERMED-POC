@@ -62,13 +62,17 @@ REACTMOD/
     ├── lib/
     │   ├── auth.tsx             # AuthProvider, useAuth, RequireRole, DEMO_MODE
     │   ├── ai.ts                # AiClient interface + mock + HTTP client
-    │   └── ai.test.ts
+    │   ├── health.ts            # HealthClient: simulated metrics or GET /health
+    │   ├── theme.tsx            # ThemeProvider + light/dark ThemeToggle
+    │   ├── useToast.ts
+    │   └── *.test.ts
     ├── data/mock.ts             # ALL demo data in one place (swap for API calls)
     ├── components/
     │   ├── DashboardLayout.tsx  # one sidebar/header for all 3 portals
     │   ├── ChatPanel.tsx        # shared, XSS-safe chat (landing demo + patient assistant)
     │   ├── Modal.tsx            # native <dialog>: focus trap + Escape
     │   ├── LineChart.tsx        # Line/Bar chart wrappers
+    │   ├── HeroIllustration.tsx # code-drawn hero art (no stock images), animated ECG
     │   ├── Logo.tsx
     │   └── ui.tsx               # Card, PageHeader, StatCard, Badge, DemoBanner
     └── pages/
@@ -85,9 +89,24 @@ REACTMOD/
 | `/`, `/login`, `/signup` | everyone |
 | `/patient/*` | patient, student |
 | `/pro/*` | professional |
-| `/admin/*` | admin |
+| `/admin/*` (incl. `/admin/health`, `/admin/settings#admins`) | admin |
 
 A signed-out visitor is sent to `/login`. A signed-in user on the wrong portal is sent back to their own portal.
+
+## Features added in v1.1
+
+- **Light / dark mode** toggle in the landing nav, login and signup, and every dashboard header. The choice is saved per browser; the first visit follows the system setting, and the theme is applied before first paint, so there is no white flash.
+  - How it works: `src/index.css` remaps colour tokens under `html.dark` (`surface`, the slate scale and pale tints), so components use one set of classes. `white` and `slate-950` are deliberately *not* remapped: use them for things that must look the same in both themes.
+- **Illustrated landing hero** drawn in HTML/SVG (vitals, live ECG, AI-review and simulation cards), plus a "How it works" loop section and a CTA band.
+- **Fuller pages:**
+  - Patients: search, risk filter, detail panel with vitals, flagged labs, AI summary, BP trend and timeline.
+  - Research: drag-and-drop upload with a consent/de-identification checklist; contributions list with statuses.
+  - Mentorship: mentee cards, a progress modal with a score chart, and replies to open questions.
+  - Analytics: 7/30-day range, a requests-by-module doughnut, resource bars, and generated reports.
+- **Admin settings** rebuilt to match the POC layout, with a scroll-spy sub-nav and a Save button:
+  - Quick actions: **Invite new admin** (modal with access levels, validation and duplicate check), **Trigger AI training** (shows progress; produces a *candidate* model, not deployed), **Export system log** (real CSV download) and **Ecosystem settings**.
+  - **Admin team** list with revoke/remove, plus profile, password change with validation, 2FA, data masking, and maintenance mode with a confirmation step.
+- **Server health** (`/admin/health`): overall status banner, CPU/memory/disk/network gauges, requests per minute, error rate, p95 latency, live CPU and latency charts (3 s polling, pausable), per-service status/latency/30-day uptime, and an incident timeline. Simulated in demo mode; with `VITE_DEMO_MODE=false` it calls `GET {VITE_API_URL}/health` (shape: `HealthSnapshot` in `lib/health.ts`), which must require an admin session server-side.
 
 ## What's already fixed vs the POC
 
@@ -114,8 +133,8 @@ Checked on this version: `tsc` clean, production build OK, unit tests pass, and 
 ## Still to do (known gaps in v1)
 
 - **No backend yet.** Data is mock and nothing persists across reloads (only the session, in `sessionStorage`).
-- Patients, Research, Students and Content pages are thin ports: layout is in place, depth is not.
-- No i18n, no dark mode, no PWA/offline support.
+- Content and Diagnostics admin pages are still thin.
+- No i18n, no PWA/offline support.
 - The main bundle is about 108 KB gzipped. Chart.js is split out; the router and React could be split further.
 - No ESLint/Prettier or CI yet.
 

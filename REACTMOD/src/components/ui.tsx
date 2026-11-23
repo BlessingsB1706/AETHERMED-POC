@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-2xl border border-slate-100 bg-white p-6 shadow-sm ${className}`}>{children}</div>;
+  return <div className={`rounded-2xl border border-slate-100 bg-surface p-6 shadow-sm ${className}`}>{children}</div>;
 }
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
@@ -26,7 +26,7 @@ const TONES: Record<string, string> = {
 
 export function StatCard(props: { label: string; value: string; unit?: string; note?: string; tone?: string }) {
   return (
-    <div className={`rounded-2xl border border-l-4 border-slate-100 bg-white p-5 shadow-sm ${TONES[props.tone ?? 'medical']}`}>
+    <div className={`rounded-2xl border border-l-4 border-slate-100 bg-surface p-5 shadow-sm ${TONES[props.tone ?? 'medical']}`}>
       <p className="text-sm font-medium text-slate-500">{props.label}</p>
       <p className="mt-2 text-2xl font-bold text-slate-900">
         {props.value} {props.unit && <span className="text-sm font-normal text-slate-500">{props.unit}</span>}
@@ -51,6 +51,31 @@ export function DemoBanner() {
   return (
     <div role="note" className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">
       Demo data. Nothing shown here is a real patient, result or statistic.
+    </div>
+  );
+}
+
+export function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-medical-600' : 'bg-slate-300'}`}
+    >
+      <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : ''}`} />
+    </button>
+  );
+}
+
+/** Minimal toast: render <Toast message={msg} /> and clear msg after a timeout. */
+export function Toast({ message }: { message: string | null }) {
+  if (!message) return null;
+  return (
+    <div role="status" className="fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-medium text-white shadow-2xl">
+      {message}
     </div>
   );
 }

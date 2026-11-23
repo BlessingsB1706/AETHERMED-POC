@@ -2,6 +2,7 @@ import { ArrowLeft, Briefcase, GraduationCap, Shield, User } from 'lucide-react'
 import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/Logo';
+import { ThemeToggle } from '../lib/theme';
 import { DEMO_MODE, homePathFor, useAuth, type Role } from '../lib/auth';
 
 const ROLES: { role: Role; label: string; icon: typeof User }[] = [
@@ -26,8 +27,8 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-medical-50 px-4 py-12">
-      <div className="w-full max-w-md rounded-3xl border border-white/50 bg-white/80 p-8 shadow-xl backdrop-blur-md sm:p-10">
-        <Link to="/" className="mb-6 inline-flex items-center text-sm font-medium text-slate-400 hover:text-medical-600"><ArrowLeft className="mr-1 h-4 w-4" /> Home</Link>
+      <div className="w-full max-w-md rounded-3xl border border-slate-200/60 bg-surface/90 p-8 shadow-xl backdrop-blur-md sm:p-10">
+        <div className="mb-6 flex items-center justify-between"><Link to="/" className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-medical-600"><ArrowLeft className="mr-1 h-4 w-4" /> Home</Link><ThemeToggle /></div>
         <div className="mb-8 flex flex-col items-center gap-4 text-center">
           <Logo />
           <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
@@ -40,7 +41,7 @@ export default function Login() {
             </p>
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">Email (optional)</label>
-              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-medical-500" />
+              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" className="w-full rounded-xl border border-slate-200 bg-surface px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-medical-500" />
             </div>
             <fieldset>
               <legend className="mb-3 text-sm font-medium text-slate-700">Sign in as</legend>

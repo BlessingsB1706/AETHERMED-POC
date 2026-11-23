@@ -7,6 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script>
+      /* Apply the saved / system theme before first paint to avoid a white flash. */
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('aethermed.theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (t === 'dark') document.documentElement.classList.add('dark');
+        document.documentElement.style.colorScheme = t;
+      })();
+    </script>
     <title>AetherMed | Where Medical Intelligence Meets the Future</title>
   </head>
   <body>

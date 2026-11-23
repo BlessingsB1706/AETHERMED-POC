@@ -18,7 +18,7 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
       aria-labelledby="modal-title"
-      className="m-auto w-[calc(100%-2rem)] max-w-2xl rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/50 backdrop:backdrop-blur-sm"
+      className="m-auto w-[calc(100%-2rem)] max-w-2xl rounded-2xl bg-surface p-0 text-slate-800 shadow-2xl backdrop:bg-slate-950/60 backdrop:backdrop-blur-sm"
     >
       <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
         <h2 id="modal-title" className="text-lg font-bold text-slate-900">{title}</h2>

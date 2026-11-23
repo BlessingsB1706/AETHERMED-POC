@@ -1,8 +1,9 @@
-import { BookOpen, Database, FileText, GraduationCap, LayoutGrid, LineChart, MessageSquare, Settings, Shield, Stethoscope, Target, Users } from 'lucide-react';
+import { BookOpen, Database, Server, FileText, GraduationCap, LayoutGrid, LineChart, MessageSquare, Settings, Shield, Stethoscope, Target, Users } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { DashboardLayout, type NavGroup } from './components/DashboardLayout';
 import { AuthProvider, RequireRole } from './lib/auth';
+import { ThemeProvider } from './lib/theme';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
@@ -28,6 +29,7 @@ const Admin = {
   Diagnostics: lazy(() => import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminDiagnostics }))),
   Content: lazy(() => import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminContent }))),
   Settings: lazy(() => import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminSettings }))),
+  Health: lazy(() => import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminHealth }))),
 };
 
 const patientNav: NavGroup[] = [
@@ -40,7 +42,7 @@ const proNav: NavGroup[] = [
 ];
 const adminNav: NavGroup[] = [
   { heading: 'Platform', items: [{ to: '/admin', label: 'Dashboard', icon: LayoutGrid, end: true }, { to: '/admin/users', label: 'Users', icon: Users }, { to: '/admin/analytics', label: 'Analytics', icon: LineChart }] },
-  { heading: 'Operations', items: [{ to: '/admin/diagnostics', label: 'Diagnostics', icon: Shield }, { to: '/admin/content', label: 'Content', icon: FileText }, { to: '/admin/settings', label: 'Settings', icon: Settings }] },
+  { heading: 'Operations', items: [{ to: '/admin/diagnostics', label: 'Diagnostics', icon: Shield }, { to: '/admin/health', label: 'Server health', icon: Server }, { to: '/admin/content', label: 'Content', icon: FileText }, { to: '/admin/settings', label: 'Settings', icon: Settings }] },
 ];
 
 const router = createBrowserRouter([
@@ -78,6 +80,7 @@ const router = createBrowserRouter([
       { path: 'diagnostics', element: <Admin.Diagnostics /> },
       { path: 'content', element: <Admin.Content /> },
       { path: 'settings', element: <Admin.Settings /> },
+      { path: 'health', element: <Admin.Health /> },
     ],
   },
   { path: '*', element: <NotFound /> },
@@ -86,10 +89,12 @@ const router = createBrowserRouter([
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Suspense fallback={<div className="p-8 text-sm text-slate-500">Loading…</div>}>
         <RouterProvider router={router} />
       </Suspense>
     </AuthProvider>
+    </ThemeProvider>
   );
 }

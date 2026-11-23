@@ -24,7 +24,7 @@ export function PatientOverview() {
         action={
           <div role="tablist" aria-label="Dashboard view" className="inline-grid grid-cols-2 rounded-xl bg-slate-200 p-1">
             {(['health', 'student'] as const).map((m) => (
-              <button key={m} role="tab" aria-selected={mode === m} onClick={() => setMode(m)} className={`rounded-lg px-6 py-2.5 text-sm font-semibold ${mode === m ? 'bg-white text-medical-600 shadow-sm' : 'text-slate-500'}`}>
+              <button key={m} role="tab" aria-selected={mode === m} onClick={() => setMode(m)} className={`rounded-lg px-6 py-2.5 text-sm font-semibold ${mode === m ? 'bg-surface text-medical-600 shadow-sm' : 'text-slate-500'}`}>
                 {m === 'health' ? 'Patient view' : 'Student view'}
               </button>
             ))}
@@ -60,7 +60,7 @@ export function PatientAssistant() {
   return (
     <Card className="flex h-[calc(100vh-9rem)] flex-col overflow-hidden !p-0">
       <div className="flex items-center gap-3 bg-medical-600 px-6 py-4 text-white">
-        <img src="/aether_ai.png" alt="" className="h-10 w-10 rounded-full border-2 border-white/20 bg-white" />
+        <img src="/aether_ai.png" alt="" className="h-10 w-10 rounded-full border-2 border-white/20 bg-surface" />
         <div><p className="font-bold">Aether AI</p><p className="text-xs text-medical-100">Personal assistant</p></div>
       </div>
       <div className="min-h-0 flex-1">
@@ -105,7 +105,7 @@ export function PatientCareer() {
               <p className="text-sm text-slate-500">{j.org} · {j.location}</p>
               <div className="mt-2 flex gap-2">{j.tags.map((t) => <Badge key={t}>{t}</Badge>)}</div>
             </div>
-            <div className="flex items-center gap-3"><Badge tone="green">{j.match}% match</Badge><button className="rounded-lg bg-slate-900 px-6 py-2 text-sm font-semibold text-white hover:bg-medical-600">Apply</button></div>
+            <div className="flex items-center gap-3"><Badge tone="green">{j.match}% match</Badge><button className="rounded-lg bg-slate-950 dark:bg-medical-600 px-6 py-2 text-sm font-semibold text-white hover:bg-medical-600">Apply</button></div>
           </Card>
         ))}
       </div>

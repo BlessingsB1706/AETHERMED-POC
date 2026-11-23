@@ -2,6 +2,7 @@ import { Bell, LogOut, Menu, Search, X, type LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
+import { ThemeToggle } from '../lib/theme';
 import { Logo } from './Logo';
 
 export interface NavItem {
@@ -27,10 +28,10 @@ export function DashboardLayout({ nav, roleLabel }: { nav: NavGroup[]; roleLabel
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-800">
-      {open && <div className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} aria-hidden />}
+      {open && <div className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} aria-hidden />}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white transition-transform duration-300 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-surface transition-transform duration-300 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
         aria-label="Main navigation"
       >
         <div className="flex h-20 items-center border-b border-slate-100 px-6">
@@ -81,19 +82,23 @@ export function DashboardLayout({ nav, roleLabel }: { nav: NavGroup[]; roleLabel
       </aside>
 
       <div className="flex h-screen flex-1 flex-col overflow-hidden lg:ml-64">
-        <header className="flex h-20 shrink-0 items-center justify-between border-b border-slate-200 bg-white/80 px-6 backdrop-blur-md lg:px-8">
+        <header className="flex h-20 shrink-0 items-center justify-between border-b border-slate-200 bg-surface/80 px-6 backdrop-blur-md lg:px-8">
           <div className="flex items-center">
             <button className="mr-4 rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
               <Menu className="h-5 w-5" />
             </button>
             <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
-              <input type="search" aria-label="Search" placeholder="Search..." className="w-64 rounded-full border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-medical-500" />
+              <input type="search" aria-label="Search" placeholder="Search..." className="w-64 rounded-full border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm outline-none focus:bg-surface focus:ring-2 focus:ring-medical-500" />
             </div>
           </div>
-          <button className="relative rounded-full p-2 text-slate-400 hover:bg-medical-50 hover:text-medical-600" aria-label="Notifications">
-            <Bell className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <button className="relative rounded-full p-2 text-slate-400 hover:bg-medical-50 hover:text-medical-600" aria-label="Notifications">
+              <Bell className="h-5 w-5" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-surface" />
+            </button>
+          </div>
         </header>
         <main className="flex-1 overflow-y-auto p-6 lg:p-8">
           <Outlet />

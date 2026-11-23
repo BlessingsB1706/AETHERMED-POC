@@ -86,3 +86,119 @@ export const modelHealth = [
   { name: 'Oncology v1.8', state: 'Online', note: 'High load (145 ms avg latency)' },
   { name: 'Neurology v3.1', state: 'Training', note: 'Retraining 78% complete' },
 ];
+
+// ---------- Professional: patients ----------
+export type Risk = 'Low' | 'Moderate' | 'High';
+export interface Patient {
+  id: string;
+  name: string;
+  age: number;
+  sex: 'F' | 'M';
+  condition: string;
+  risk: Risk;
+  lastVisit: string;
+  vitals: { hr: number; bp: string; spo2: number; temp: number };
+  labs: { test: string; value: string; range: string; flag: 'normal' | 'high' | 'low' }[];
+  aiSummary: string;
+  timeline: { date: string; event: string }[];
+  bpTrend: number[];
+}
+
+export const patients: Patient[] = [
+  {
+    id: 'PT-8472', name: 'John Davis', age: 45, sex: 'M', condition: 'Hypertension', risk: 'Moderate', lastVisit: '2026-10-12',
+    vitals: { hr: 78, bp: '138/88', spo2: 97, temp: 36.8 },
+    labs: [
+      { test: 'Total cholesterol', value: '232 mg/dL', range: '< 200', flag: 'high' },
+      { test: 'HbA1c', value: '5.6 %', range: '< 5.7', flag: 'normal' },
+      { test: 'Creatinine', value: '1.0 mg/dL', range: '0.7–1.3', flag: 'normal' },
+    ],
+    aiSummary: 'BP trending down since medication change but still above target. ECG #DRG-8922 flagged (74%) for possible T-wave inversion: awaiting your review.',
+    timeline: [
+      { date: '2026-10-12', event: 'Follow-up visit, amlodipine dose adjusted' },
+      { date: '2026-10-10', event: 'ECG uploaded, AI flagged for review' },
+      { date: '2026-09-02', event: 'Lipid panel: cholesterol high' },
+    ],
+    bpTrend: [148, 146, 144, 141, 140, 139, 138],
+  },
+  {
+    id: 'PT-8519', name: 'Amara Okafor', age: 32, sex: 'F', condition: 'Type 2 diabetes', risk: 'Low', lastVisit: '2026-11-02',
+    vitals: { hr: 72, bp: '118/76', spo2: 99, temp: 36.6 },
+    labs: [
+      { test: 'HbA1c', value: '6.4 %', range: '< 5.7', flag: 'high' },
+      { test: 'Fasting glucose', value: '112 mg/dL', range: '70–99', flag: 'high' },
+      { test: 'eGFR', value: '104', range: '> 90', flag: 'normal' },
+    ],
+    aiSummary: 'HbA1c improved from 7.1% to 6.4% over 6 months. Adherence good. No action needed before next routine review.',
+    timeline: [
+      { date: '2026-11-02', event: 'Quarterly review, metformin continued' },
+      { date: '2026-08-01', event: 'HbA1c 6.9%' },
+    ],
+    bpTrend: [122, 120, 121, 119, 118, 118, 118],
+  },
+  {
+    id: 'PT-8601', name: 'Mei Roberts', age: 61, sex: 'F', condition: 'Post-stroke rehab', risk: 'High', lastVisit: '2026-11-18',
+    vitals: { hr: 88, bp: '152/94', spo2: 95, temp: 37.1 },
+    labs: [
+      { test: 'INR', value: '3.4', range: '2.0–3.0', flag: 'high' },
+      { test: 'Hemoglobin', value: '11.2 g/dL', range: '12–15.5', flag: 'low' },
+      { test: 'Sodium', value: '139 mmol/L', range: '135–145', flag: 'normal' },
+    ],
+    aiSummary: 'INR above therapeutic range and BP elevated. Suggest anticoagulation review within 48 h. MRI #DRG-8921 completed (98%).',
+    timeline: [
+      { date: '2026-11-18', event: 'Physio session, mobility improving' },
+      { date: '2026-11-15', event: 'MRI brain processed by AI, report verified' },
+      { date: '2026-10-30', event: 'Discharged from inpatient stroke unit' },
+    ],
+    bpTrend: [160, 158, 155, 156, 154, 153, 152],
+  },
+  {
+    id: 'PT-8644', name: 'Samuel Lee', age: 54, sex: 'M', condition: 'Anemia work-up', risk: 'Moderate', lastVisit: '2026-11-20',
+    vitals: { hr: 92, bp: '124/80', spo2: 98, temp: 36.9 },
+    labs: [
+      { test: 'Hemoglobin', value: '10.1 g/dL', range: '13.5–17.5', flag: 'low' },
+      { test: 'Ferritin', value: '9 ng/mL', range: '24–336', flag: 'low' },
+      { test: 'MCV', value: '74 fL', range: '80–100', flag: 'low' },
+    ],
+    aiSummary: 'Pattern consistent with iron-deficiency anemia. Blood panel #DRG-8924 still processing.',
+    timeline: [
+      { date: '2026-11-20', event: 'Blood panel sent to lab' },
+      { date: '2026-11-19', event: 'GP referral: fatigue for 3 months' },
+    ],
+    bpTrend: [126, 125, 124, 125, 124, 124, 124],
+  },
+];
+
+// ---------- Professional: research ----------
+export const datasets = [
+  { name: 'Q3 Cardiology ECG scans', size: '1.2 GB', records: 4210, uploaded: '2026-10-10', status: 'Published', consent: 100 },
+  { name: 'Neurology MRI batch: study 42', size: '3.4 GB', records: 812, uploaded: '2026-11-21', status: 'In review', consent: 100 },
+  { name: 'Hematology slide images', size: '640 MB', records: 2304, uploaded: '2026-09-14', status: 'Published', consent: 98 },
+  { name: 'Pediatric growth charts', size: '48 MB', records: 15020, uploaded: '2026-08-30', status: 'Rejected: PII found', consent: 92 },
+];
+
+// ---------- Professional: mentees ----------
+export const mentees = [
+  { name: 'Sarah Wilson', program: 'MedLab Science, Yr 3', module: 'ECG Interpretation', progress: 75, quiz: 92.4, sims: 45, questions: 1, scores: [78, 82, 85, 88, 91, 92, 94] },
+  { name: 'Tunde Bakare', program: 'Medicine, Yr 4', module: 'Hematology Slides', progress: 40, quiz: 81.0, sims: 22, questions: 3, scores: [70, 72, 69, 75, 78, 80, 81] },
+  { name: 'Lina Haddad', program: 'MedLab Science, Yr 2', module: 'Clinical Chemistry', progress: 90, quiz: 95.2, sims: 61, questions: 0, scores: [88, 90, 91, 93, 94, 95, 96] },
+];
+
+// ---------- Admin ----------
+export interface AdminMember {
+  name: string;
+  email: string;
+  level: 'Super Admin' | 'Content Admin' | 'Support';
+  status: 'Active' | 'Invited';
+  added: string;
+}
+export const adminTeam: AdminMember[] = [
+  { name: 'System Admin', email: 'admin@example.org', level: 'Super Admin', status: 'Active', added: '2026-01-04' },
+  { name: 'Grace Eze', email: 'g.eze@example.org', level: 'Content Admin', status: 'Active', added: '2026-03-18' },
+];
+
+export const reports = [
+  { name: 'Monthly clinician-agreement audit.pdf', meta: 'Generated automatically', size: '2.4 MB' },
+  { name: 'User engagement Q3.csv', meta: 'Requested by System Admin', size: '1.1 MB' },
+  { name: 'Server cost & load analysis.pdf', meta: 'Generated automatically', size: '3.8 MB' },
+];

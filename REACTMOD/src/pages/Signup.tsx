@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/Logo';
+import { ThemeToggle } from '../lib/theme';
 import { homePathFor, useAuth, type Role } from '../lib/auth';
 
 const ROLES: { value: Role | 'institution'; label: string }[] = [
@@ -31,12 +32,12 @@ export default function Signup() {
     navigate(homePathFor(user.role));
   }
 
-  const input = 'w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-medical-500';
+  const input = 'w-full rounded-xl border border-slate-200 bg-surface px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-medical-500';
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-medical-50 px-4 py-12">
-      <div className="w-full max-w-2xl rounded-3xl border border-white/50 bg-white/80 p-8 shadow-xl backdrop-blur-md sm:p-10">
-        <Link to="/" className="mb-6 inline-flex items-center text-sm font-medium text-slate-400 hover:text-medical-600"><ArrowLeft className="mr-1 h-4 w-4" /> Home</Link>
+      <div className="w-full max-w-2xl rounded-3xl border border-slate-200/60 bg-surface/90 p-8 shadow-xl backdrop-blur-md sm:p-10">
+        <div className="mb-6 flex items-center justify-between"><Link to="/" className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-medical-600"><ArrowLeft className="mr-1 h-4 w-4" /> Home</Link><ThemeToggle /></div>
         <div className="mb-8 flex flex-col items-center gap-4 text-center">
           <Logo />
           <h1 className="text-2xl font-bold text-slate-900">Create account</h1>

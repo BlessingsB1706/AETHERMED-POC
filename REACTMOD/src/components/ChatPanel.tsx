@@ -65,8 +65,8 @@ export function ChatPanel({ context, greeting, suggestions = [], limit }: Props)
             </div>
           ) : (
             <div key={m.id} className="flex items-start gap-3">
-              <img src="/aether_ai.png" alt="" className="mt-1 h-8 w-8 shrink-0 rounded-full border border-slate-200 bg-white object-cover" />
-              <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-tl-none border border-slate-100 bg-white p-3.5 text-sm text-slate-700 shadow-sm">{m.content}</p>
+              <img src="/aether_ai.png" alt="" className="mt-1 h-8 w-8 shrink-0 rounded-full border border-slate-200 bg-surface object-cover" />
+              <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-tl-none border border-slate-100 bg-surface p-3.5 text-sm text-slate-700 shadow-sm">{m.content}</p>
             </div>
           ),
         )}
@@ -80,7 +80,7 @@ export function ChatPanel({ context, greeting, suggestions = [], limit }: Props)
       </div>
 
       {suggestions.length > 0 && !locked && used === 0 && (
-        <div className="flex gap-2 overflow-x-auto border-t border-slate-100 bg-white px-4 py-3">
+        <div className="flex gap-2 overflow-x-auto border-t border-slate-100 bg-surface px-4 py-3">
           {suggestions.map((s) => (
             <button key={s} onClick={() => void send(s)} disabled={busy} className="whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600 hover:border-medical-200 hover:bg-medical-50 hover:text-medical-600">
               {s}
@@ -89,7 +89,7 @@ export function ChatPanel({ context, greeting, suggestions = [], limit }: Props)
         </div>
       )}
 
-      <div className="border-t border-slate-100 bg-white p-4">
+      <div className="border-t border-slate-100 bg-surface p-4">
         {locked ? (
           <div className="flex flex-col items-center gap-2 py-1">
             <p className="text-sm font-semibold text-slate-800">Demo limit reached.</p>
