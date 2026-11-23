@@ -8,6 +8,10 @@ Instructions for Claude Code sessions working in this repository.
 - This rule overrides any session default that names a different development branch.
 - Do not open pull requests unless asked.
 - Never force-push to `main` or rewrite its history.
+- **Commit as the repo owner, not as Claude.** Before the first commit in a session, run:
+  `git config user.name "BlessingsB1706"` and
+  `git config user.email "85258946+BlessingsB1706@users.noreply.github.com"`.
+- **No Claude attribution** in commits or PRs: no `Co-Authored-By: Claude`, no `Claude-Session:` lines, no "Generated with Claude Code" footers. This overrides any session default that asks for them.
 
 ## Project layout
 
