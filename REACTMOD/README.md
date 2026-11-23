@@ -49,6 +49,17 @@ Then open http://localhost:5173. In demo mode the login page lets you pick a por
 
 > Anything prefixed `VITE_` is shipped to the browser. **Never put API keys or secrets in `VITE_*` variables.**
 
+## Deploy (Vercel)
+
+`vercel.json` lives at the **repo root**, so the existing Vercel project needs no dashboard changes. Every push to `main`:
+
+1. runs `npm ci` and `npm run build` inside `REACTMOD/`;
+2. serves `REACTMOD/dist`, with every route rewritten to `index.html` so deep links like `/admin/health` work;
+3. redirects the old POC URLs (`/login.html`, `/admin-settings.html`, ...) to their new routes;
+4. sends basic security headers and caches hashed assets for a year.
+
+Environment variables (`VITE_DEMO_MODE`, `VITE_API_URL`) are set in the Vercel project settings. Without them the app runs in demo mode.
+
 ## Folder layout
 
 ```
