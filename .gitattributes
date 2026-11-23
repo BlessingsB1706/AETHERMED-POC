@@ -1,0 +1,3 @@
+# Exclude the frozen static-HTML POC (repo root) from GitHub's language stats
+# so the active React/TypeScript app in REACTMOD/ is what the Languages bar shows.
+/*.html linguist-documentation
