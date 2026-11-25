@@ -111,7 +111,138 @@ These are problems backed by current data where the existing design fits natural
 
 ---
 
-## 5. What happens next
+## 5. Data & AI: how we build the intelligence
+
+**Principle: don't train a medical AI from scratch.** Build it in three layers and only train models where rules and existing models can't do the job.
+
+```
+ lab result ──► Layer 1: rules engine ──► decision + flags (auto-verify / review / recollect / critical call)
+                       │                         │
+                       │                         ▼
+                       │              Layer 2: language model explains the flags,
+                       │              cites the library, drafts reports & quizzes
+                       ▼
+ image / ECG ──► Layer 3: specialist model ──► finding + confidence ──► human review queue
+                                                                            │
+                         every verdict becomes a labelled example ◄─────────┘
+```
+
+### Layer 1: rules engine (built, in `REACTMOD/src/lib/labRules/`)
+
+Lab review is mostly fixed rules, so we write them as **versioned, tested code**:
+
+| Rule type | Example in the ruleset | Decision it drives |
+|---|---|---|
+| Reference ranges (by sex, anticoagulation, Duffy status) | Hemoglobin 12.0–15.5 g/dL for women | needs review |
+| Critical values | Potassium > 6.2 mmol/L | **phone the clinician now** |
+| Delta checks | Creatinine +0.3 mg/dL within 48 h (KDIGO AKI criterion) | needs review (wrong-patient check) |
+| Plausibility | Potassium 45 mmol/L (typo for 4.5) | needs review, never a false critical |
+| Sample quality | Hemolysis index ≥ 50 withholds potassium | **recollect** |
+| Consistency | MCHC > 37 g/dL suggests interference | needs review |
+| Scope | Patient under 18 | manual review (no pediatric ranges yet) |
+| Units | Glucose mmol/L → mg/dL, creatinine µmol/L → mg/dL | unknown unit is flagged, never guessed |
+
+**The Nigerian advantage is built in:** neutrophil counts use a **Duffy-null-aware range**. When Duffy status is unknown and the count sits in the Duffy-null interval, the engine raises an *information* hint instead of labelling the person neutropenic. Standard ranges misclassify up to half of Duffy-null people.
+
+**Try it:** sign in as Professional → **Lab review**. It runs five sample reports through the engine.
+
+**How to change a rule (the process that keeps it safe):**
+1. Edit `ruleset.ts`, bump `RULESET_VERSION`, and add a changelog line saying why.
+2. Add or adjust a test in `engine.test.ts`. CI must pass (`npm test`).
+3. A pathologist or senior lab scientist approves the pull request.
+4. Every evaluation stores the `rulesetVersion` it ran with, so any past flag can be explained in an audit.
+
+**Path to production:**
+- **Server-side:** run `evaluate()` on the server for every incoming result. The browser copy is for the demo. The function is pure TypeScript, so the same file runs in a Supabase Edge Function or Node.
+- **Storage:** save each evaluation (decision, flags, ruleset version, reviewer action) in an append-only audit table.
+- **Results in:** start with CSV import from the lab system, then an HL7 v2 / ASTM analyser interface.
+- **Per-lab configuration:** move ranges and limits into a versioned per-lab table, each signed off by that lab's pathologist. Hemolysis and lipemia index scales differ by analyser brand.
+
+**Next rules to add:** pediatric and pregnancy ranges, local reference intervals from partner labs' own healthy-population data, more analytes (liver panel, lipids, HbA1c, malaria RDT/microscopy agreement), and Westgard QC rules for daily controls.
+
+### Layer 2: language model with a curated library (next to build)
+
+The language model **explains**; it never **decides**. The decision always comes from Layer 1 or a human.
+
+1. **Server-side only.** Add `POST /ai/explain` and `POST /ai/chat` as a Supabase Edge Function or a Node service, using the official Anthropic TypeScript SDK (`@anthropic-ai/sdk`). The API key lives in server environment variables, never in `VITE_*`. The frontend already calls `httpAiClient` in `src/lib/ai.ts`, so only the server is new.
+2. **Model:** start with `claude-opus-5-5`. Tune the `effort` setting per route (low for chat, higher for report drafting) before considering a cheaper model, and only switch if a measured eval shows quality holds.
+3. **Input is structured, not free text.** Send the Layer 1 `Evaluation` (flags, evidence, ranges) plus age and sex. **Send no names, IDs or contact details.** Minimum necessary data, under the Nigeria Data Protection Act and a signed data-processing agreement with the AI vendor.
+4. **The library (RAG), simplest first:**
+   - *Start:* a small curated library (WHO guidance, Nigerian national guidelines, your lab procedures, the ruleset's own reference table) placed in the **system prompt with prompt caching**. While it's under a few hundred pages, this is simpler and more reliable than a vector database.
+   - *Grow:* when the library gets big, chunk it into Postgres with `pgvector` (built into Supabase), retrieve the most relevant passages per request, and pass them as `document` blocks with **citations enabled**, so every sentence in an explanation points at its source.
+5. **Guardrails:**
+   - a fixed output structure (structured outputs);
+   - a system prompt that forbids diagnoses and requires the red-flag wording for critical values;
+   - handling of the `refusal` stop reason;
+   - logging of prompt version, sources used and response for audit.
+6. **Evaluation before every change.** Keep a fixed test set:
+   - 150–300 realistic lab reports with clinician-written ideal explanations;
+   - a slice of AfriMed-QA questions, for research benchmarking only (its licence is non-commercial).
+
+   Each answer is graded automatically (mentions every critical flag, makes no diagnosis claims, cites a source, stays at the target reading level) plus clinician spot-checks. A prompt or library change ships only if the scores don't drop.
+7. **Uses:** patient-friendly result explanations, report drafts for reviewers, Aether AI chat, and quiz generation from verified cases for the Learning Hub.
+
+### Layer 3: specialist models for images and signals (after Layer 2)
+
+Only for things rules and language models can't do: blood smears and ECGs.
+
+**Order of work:**
+1. Malaria thin-smear classifier.
+2. White-cell differential.
+3. 12-lead ECG.
+
+**Tools:** Python, PyTorch with **timm** (pretrained image models), Label Studio for annotation, DVC for data versioning, MLflow for experiment tracking. Prototype on free Kaggle or Colab GPUs, then a rented cloud GPU.
+
+**Steps:**
+1. **Data card per dataset:** source, licence, consent basis, demographics, scanner or phone model.
+2. **Split by patient and site,** never by image (otherwise the test scores are inflated by leakage).
+3. **Transfer learning:** start from a model pretrained on ImageNet (images) or a published PTB-XL baseline (ECG), then fine-tune on public data:
+   - NIH malaria cell images (27,558 images, public domain);
+   - PTB-XL ECGs.
+4. **Local fine-tune:** thousands, not millions, of smear photos taken with phone-microscope adapters at partner labs and schools. Two scientists label each image, and a third resolves disagreements.
+5. **Evaluate what matters clinically:**
+   - sensitivity at a fixed specificity;
+   - calibration (so the confidence score can route cases);
+   - results broken down by site and device.
+6. **Ship safely:**
+   - export to ONNX and serve from a small inference service;
+   - run in **shadow mode** (predicting silently next to experts) at one pilot lab;
+   - go live only as an assistant whose low-confidence cases go to the human review queue.
+7. **The flywheel:** every reviewer verdict becomes a new labelled example. Retrain monthly, and deploy a candidate model only if it beats the current one on a frozen test set. The admin "Trigger AI training" flow already treats new models as candidates.
+
+> Image-analysis AI is likely regulated as software as a medical device (NAFDAC in Nigeria; FDA, MHRA or CE elsewhere). Until cleared, position it as decision support with mandatory human sign-off, and get regulatory advice before making any accuracy claims.
+
+### Where the data comes from
+
+| Source | Use | Access |
+|---|---|---|
+| NIH/NLM malaria cell images | Malaria model | Public domain |
+| PTB-XL (PhysioNet) | ECG model | Open access |
+| AfriMed-QA | Benchmarking the assistant | CC-BY-NC-SA: research only unless the authors grant commercial terms |
+| MIMIC-IV (PhysioNet) | Lab-pattern research | Credentialed: training course + data-use agreement |
+| NHANES | Population lab distributions | Open |
+| Synthea | App development and testing only | Open (synthetic) |
+| **Partner labs and teaching hospitals** | Local ranges, Layer 1 tuning, Layer 3 fine-tuning | Data-sharing agreement + ethics approval (NHREC or hospital HREC) + NDPA compliance. Offer the software free in exchange. |
+| **Med-lab schools** | Labelled smear images | Coursework with phone microscopes, consented |
+| **AetherMed's own review queue** | Ongoing labels | Every verified case, de-identified, with consent recorded |
+
+**Data rules from day one:**
+- a provenance table recording the source, licence and consent of every record;
+- no scraping;
+- no non-commercial datasets in the paid product;
+- no raw patient data ever sold. Research access is consented and revenue-shared with contributing institutions.
+
+### Milestones
+
+| When | Deliverable |
+|---|---|
+| Week 1 | Layer 1 running server-side, with CSV result import and the audit table |
+| Weeks 2–3 | Layer 2 explanations with a cached library; eval set v1 (150 cases) |
+| Month 2 | Malaria smear model on public data; offline evaluation report |
+| Month 3 | Pilot with one lab and one school: local ranges, phone-microscope images, shadow mode |
+| Month 4+ | Assisted go-live with human sign-off; monthly retraining from queue verdicts |
+
+## 6. What happens next
 
 All new work happens in **[`REACTMOD/`](./REACTMOD)**. Its README has the stack, the folder layout, what was already fixed, and the **7-day production-readiness plan**.
 

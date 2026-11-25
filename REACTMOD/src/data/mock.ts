@@ -1,3 +1,4 @@
+import type { LabReport } from '../lib/labRules';
 /**
  * ALL demo data lives here so it is easy to find and replace with API calls.
  * Nothing in this file is real: no real patients, users, accuracy figures or institutions.
@@ -201,4 +202,90 @@ export const reports = [
   { name: 'Monthly clinician-agreement audit.pdf', meta: 'Generated automatically', size: '2.4 MB' },
   { name: 'User engagement Q3.csv', meta: 'Requested by System Admin', size: '1.1 MB' },
   { name: 'Server cost & load analysis.pdf', meta: 'Generated automatically', size: '3.8 MB' },
+];
+
+// ---------- Layer 1 demo: lab reports fed to the rules engine ----------
+
+export interface LabCase {
+  title: string;
+  story: string;
+  report: LabReport;
+  history: LabReport[];
+}
+
+export const labCases: LabCase[] = [
+  {
+    title: 'Routine panel',
+    story: 'Healthy adult, everything in range.',
+    report: {
+      id: 'LAB-1001', patient: { id: 'PT-8519', sex: 'F', ageYears: 32 }, sample: { hemolysisIndex: 10 },
+      results: [
+        { analyte: 'NA', value: 139, unit: 'mmol/L', collectedAt: '2026-11-24T08:10:00Z' },
+        { analyte: 'K', value: 4.1, unit: 'mmol/L', collectedAt: '2026-11-24T08:10:00Z' },
+        { analyte: 'GLU', value: 5.1, unit: 'mmol/L', collectedAt: '2026-11-24T08:10:00Z' },
+        { analyte: 'CREA', value: 71, unit: 'µmol/L', collectedAt: '2026-11-24T08:10:00Z' },
+      ],
+    },
+    history: [],
+  },
+  {
+    title: 'Hemolysed sample',
+    story: 'Potassium looks critical, but the sample was hemolysed in transport.',
+    report: {
+      id: 'LAB-1002', patient: { id: 'PT-8472', sex: 'M', ageYears: 45 }, sample: { hemolysisIndex: 140 },
+      results: [
+        { analyte: 'K', value: 6.9, unit: 'mmol/L', collectedAt: '2026-11-24T09:00:00Z' },
+        { analyte: 'NA', value: 141, unit: 'mmol/L', collectedAt: '2026-11-24T09:00:00Z' },
+        { analyte: 'CREA', value: 1.1, unit: 'mg/dL', collectedAt: '2026-11-24T09:00:00Z' },
+      ],
+    },
+    history: [],
+  },
+  {
+    title: 'Critical + kidney delta',
+    story: 'Post-stroke patient: true critical potassium and a creatinine rise since yesterday.',
+    report: {
+      id: 'LAB-1003', patient: { id: 'PT-8601', sex: 'F', ageYears: 61, onAnticoagulant: true }, sample: { hemolysisIndex: 15 },
+      results: [
+        { analyte: 'K', value: 6.6, unit: 'mmol/L', collectedAt: '2026-11-24T07:30:00Z' },
+        { analyte: 'CREA', value: 1.45, unit: 'mg/dL', collectedAt: '2026-11-24T07:30:00Z' },
+        { analyte: 'INR', value: 3.4, unit: '', collectedAt: '2026-11-24T07:30:00Z' },
+        { analyte: 'HB', value: 11.2, unit: 'g/dL', collectedAt: '2026-11-24T07:30:00Z' },
+      ],
+    },
+    history: [{
+      id: 'LAB-0990', patient: { id: 'PT-8601', sex: 'F', ageYears: 61, onAnticoagulant: true }, sample: {},
+      results: [
+        { analyte: 'K', value: 4.9, unit: 'mmol/L', collectedAt: '2026-11-23T07:00:00Z' },
+        { analyte: 'CREA', value: 1.05, unit: 'mg/dL', collectedAt: '2026-11-23T07:00:00Z' },
+      ],
+    }],
+  },
+  {
+    title: 'Low neutrophils, Duffy status unknown',
+    story: 'Healthy Nigerian adult. Imported software would call this neutropenia.',
+    report: {
+      id: 'LAB-1004', patient: { id: 'PT-8710', sex: 'M', ageYears: 28 }, sample: {},
+      results: [
+        { analyte: 'WBC', value: 3800, unit: '/µL', collectedAt: '2026-11-24T10:00:00Z' },
+        { analyte: 'ANC', value: 1450, unit: '/µL', collectedAt: '2026-11-24T10:00:00Z' },
+        { analyte: 'HB', value: 14.6, unit: 'g/dL', collectedAt: '2026-11-24T10:00:00Z' },
+        { analyte: 'PLT', value: 245, unit: 'x10^9/L', collectedAt: '2026-11-24T10:00:00Z' },
+      ],
+    },
+    history: [],
+  },
+  {
+    title: 'Clotted FBC + data-entry slip',
+    story: 'Platelets unreliable on a clotted tube; MCHC typed as 3.4 instead of 34.',
+    report: {
+      id: 'LAB-1005', patient: { id: 'PT-8644', sex: 'M', ageYears: 54 }, sample: { clotted: true },
+      results: [
+        { analyte: 'PLT', value: 62, unit: 'x10^9/L', collectedAt: '2026-11-24T11:00:00Z' },
+        { analyte: 'MCHC', value: 3.4, unit: 'g/dL', collectedAt: '2026-11-24T11:00:00Z' },
+        { analyte: 'K', value: 4.4, unit: 'mmol/L', collectedAt: '2026-11-24T11:00:00Z' },
+      ],
+    },
+    history: [],
+  },
 ];

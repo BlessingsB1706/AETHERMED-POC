@@ -26,3 +26,5 @@ Instructions for Claude Code sessions working in this repository.
 - No secrets or passwords in code or in `VITE_*` env vars.
 - Role checks must also be enforced server-side; client guards are UX only.
 - No unverified medical, accuracy or compliance claims in the UI.
+- Any change to `REACTMOD/src/lib/labRules/ruleset.ts` must bump `RULESET_VERSION`, add a changelog line, and add or update a test in `engine.test.ts`.
+- AI (Layer 2/3) explains or assists; it never sets the lab decision. Never send names, IDs or contact details to an AI provider.

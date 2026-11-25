@@ -74,6 +74,7 @@ REACTMOD/
     │   ├── auth.tsx             # AuthProvider, useAuth, RequireRole, DEMO_MODE
     │   ├── ai.ts                # AiClient interface + mock + HTTP client
     │   ├── health.ts            # HealthClient: simulated metrics or GET /health
+    │   ├── labRules/            # Layer 1: versioned lab-result rules engine + tests
     │   ├── theme.tsx            # ThemeProvider + light/dark ThemeToggle
     │   ├── useToast.ts
     │   └── *.test.ts
@@ -90,6 +91,7 @@ REACTMOD/
         ├── Landing.tsx  Login.tsx  Signup.tsx  NotFound.tsx
         ├── patient/PatientPages.tsx   # Overview, Assistant, Learning, Career
         ├── pro/ProPages.tsx           # Overview, Queue (+ review modal), Patients, Research, Students
+        ├── pro/LabReview.tsx          # Layer 1 demo: sample reports through the rules engine
         └── admin/AdminPages.tsx       # Overview, Users, Analytics, Diagnostics, Content, Settings
 ```
 
@@ -118,6 +120,15 @@ A signed-out visitor is sent to `/login`. A signed-in user on the wrong portal i
   - Quick actions: **Invite new admin** (modal with access levels, validation and duplicate check), **Trigger AI training** (shows progress; produces a *candidate* model, not deployed), **Export system log** (real CSV download) and **Ecosystem settings**.
   - **Admin team** list with revoke/remove, plus profile, password change with validation, 2FA, data masking, and maintenance mode with a confirmation step.
 - **Server health** (`/admin/health`): overall status banner, CPU/memory/disk/network gauges, requests per minute, error rate, p95 latency, live CPU and latency charts (3 s polling, pausable), per-service status/latency/30-day uptime, and an incident timeline. Simulated in demo mode; with `VITE_DEMO_MODE=false` it calls `GET {VITE_API_URL}/health` (shape: `HealthSnapshot` in `lib/health.ts`), which must require an admin session server-side.
+
+## Lab rules engine (Layer 1)
+
+`src/lib/labRules/` is a pure TypeScript engine (no React, no network), so the same code can run on the server:
+- **What it checks:** reference ranges, critical values, delta checks, plausibility, sample quality, consistency and unit conversion.
+- **What it returns:** a decision (`auto-verify`, `needs-review`, `recollect` or `critical-call`) plus flags that each carry a rule ID, evidence and an action.
+- **Where to see it:** sign in as Professional → `/pro/lab-review`.
+
+How to change rules safely, and the plans for Layers 2 and 3, are in the root README → **Data & AI**.
 
 ## What's already fixed vs the POC
 

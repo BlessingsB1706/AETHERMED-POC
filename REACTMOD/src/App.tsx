@@ -1,4 +1,4 @@
-import { BookOpen, Database, Server, FileText, GraduationCap, LayoutGrid, LineChart, MessageSquare, Settings, Shield, Stethoscope, Target, Users } from 'lucide-react';
+import { BookOpen, Database, FlaskConical, Server, FileText, GraduationCap, LayoutGrid, LineChart, MessageSquare, Settings, Shield, Stethoscope, Target, Users } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { DashboardLayout, type NavGroup } from './components/DashboardLayout';
@@ -21,6 +21,7 @@ const Pro = {
   Patients: lazy(() => import('./pages/pro/ProPages').then((m) => ({ default: m.ProPatients }))),
   Research: lazy(() => import('./pages/pro/ProPages').then((m) => ({ default: m.ProResearch }))),
   Students: lazy(() => import('./pages/pro/ProPages').then((m) => ({ default: m.ProStudents }))),
+  LabReview: lazy(() => import('./pages/pro/LabReview').then((m) => ({ default: m.ProLabReview }))),
 };
 const Admin = {
   Overview: lazy(() => import('./pages/admin/AdminPages').then((m) => ({ default: m.AdminOverview }))),
@@ -37,7 +38,7 @@ const patientNav: NavGroup[] = [
   { heading: 'Education & growth', items: [{ to: '/patient/learning', label: 'Learning Hub', icon: BookOpen }, { to: '/patient/career', label: 'Career Match', icon: Target }] },
 ];
 const proNav: NavGroup[] = [
-  { heading: 'Clinical', items: [{ to: '/pro', label: 'Overview', icon: LayoutGrid, end: true }, { to: '/pro/queue', label: 'AI queue', icon: Stethoscope }, { to: '/pro/patients', label: 'Patients', icon: Users }] },
+  { heading: 'Clinical', items: [{ to: '/pro', label: 'Overview', icon: LayoutGrid, end: true }, { to: '/pro/queue', label: 'AI queue', icon: Stethoscope }, { to: '/pro/lab-review', label: 'Lab review', icon: FlaskConical }, { to: '/pro/patients', label: 'Patients', icon: Users }] },
   { heading: 'Research & teaching', items: [{ to: '/pro/research', label: 'Research hub', icon: Database }, { to: '/pro/students', label: 'Mentorship', icon: GraduationCap }] },
 ];
 const adminNav: NavGroup[] = [
@@ -65,6 +66,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Pro.Overview /> },
       { path: 'queue', element: <Pro.Queue /> },
+      { path: 'lab-review', element: <Pro.LabReview /> },
       { path: 'patients', element: <Pro.Patients /> },
       { path: 'research', element: <Pro.Research /> },
       { path: 'students', element: <Pro.Students /> },
